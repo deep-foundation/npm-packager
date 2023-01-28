@@ -1,6 +1,18 @@
 async ({ deep, require, gql, data: { newLink } }) => { 
   const { data: [pq] } = await deep.select({ id: newLink.to_id });
   const packageName = pq?.value?.value;
+  
+  const os = require('os');
+  var fs = require('fs');
+  const { v4: uuid } = require('uuid')
+  
+  const baseTempDirectory = os.tmpdir();
+  const randomId = uuid();
+  const tempDirectory = [baseTempDirectory,randomId].join('/');
+  // console.log(tempDirectory);
+  fs.mkdirSync(tempDirectory);
+
+  // const package = ...;
   const requireResult = require('@deep-foundation/deeplinks/imports/packager');
   const packager = new requireResult.Packager(deep);
   // const imported = packager.import(package);
@@ -14,6 +26,7 @@ async ({ deep, require, gql, data: { newLink } }) => {
   // return imported;
   return { 
     packageName,
+    tempDirectory,
     requireResult,
     requireResultType: typeof requireResult,
     // packager,
