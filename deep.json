@@ -1,0 +1,86 @@
+{
+  "package": {
+    "name": "@deep-foundation/npm-packager",
+    "version": "0.0.0"
+  },
+  "data": [
+    {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "Type"
+      },
+      "id": 1
+    },
+    {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "Any"
+      },
+      "id": 2
+    },
+    {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "PackageQuery"
+      },
+      "id": 3
+    },
+    {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "SyncTextFile"
+      },
+      "id": 4
+    },
+    {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "Handler"
+      },
+      "id": 5
+    },
+    {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "HandleInsert"
+      },
+      "id": 6
+    },
+    {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "dockerSupportsJs"
+      },
+      "id": 7
+    },
+    {
+      "id": "Install",
+      "type": 1,
+      "from": 2, 
+      "to": 3
+    },
+    {
+      "id": "installCode",
+      "type": 4,
+      "value": { "value": "async ({ deep, require, gql, data: { newLink } }) => { return {}; }" }
+    },
+    {
+      "id": "installCodeHandler",
+      "type": 5,
+      "from": 7, 
+      "to": "installCode"
+    },
+    {
+      "id": "installCodeHandleInsert",
+      "type": 6,
+      "from": "Install", 
+      "to": "installCodeHandler"
+    }
+  ],
+  "errors": [],
+  "dependencies": [
+    {
+      "name": "@deep-foundation/core"
+    }
+  ]
+}

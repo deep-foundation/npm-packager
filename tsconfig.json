@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "removeComments": true,
+    "jsx": "preserve",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "target": "es2021",
+    "lib": [
+      "dom",
+      "es6",
+      "es7"
+    ],
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "declaration": true,
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": false,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "incremental": true,
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "electron"
+  ],
+  "typeRoots": [
+    "./node_modules/@types"
+  ]
+}
