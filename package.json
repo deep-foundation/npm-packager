@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "license": "Unlicense",
   "scripts": {
-    "install": "npx ts-node install.ts"
+    "import": "npx ts-node import.ts"
   },
   "dependencies": {
     "@deep-foundation/deeplinks": "0.0.98",
