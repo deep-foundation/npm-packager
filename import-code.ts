@@ -9,29 +9,28 @@ async ({ deep, require, gql, data: { newLink } }) => {
   const baseTempDirectory = os.tmpdir();
   const randomId = uuid();
   const tempDirectory = [baseTempDirectory,randomId].join('/');
-  // console.log(tempDirectory);
+  console.log(tempDirectory);
   fs.mkdirSync(tempDirectory);
+  
+  const execSync = require('child_process').execSync;
+  const command = `npm i ${packageName}`;
+  const output = execSync(command, { 
+      encoding: 'utf-8',
+      cwd: tempDirectory
+  });
+  console.log(`${command}\n`, output);
+  
+  const packageFile = [tempDirectory, 'node_modules', packageName, 'deep.json'].join('/');
+  console.log(packageFile);
+  
+  const pkg = require(packageFile);
+  console.log(pkg);
+  
+  fs.rmSync(tempDirectory, { recursive: true, force: true });
 
-  // const package = ...;
   const requireResult = require('@deep-foundation/deeplinks/imports/packager');
   const packager = new requireResult.Packager(deep);
-  // const imported = packager.import(package);
-  // if (error) throw error;
-  // if (imported?.errors?.length) throw imported.errors;
-  // await deep.insert({
-  //   type_id: await deep.id('@deep-foundation/core', 'Contain'),
-  //   from_id: newLink.from_id,
-  //   to_id: imported.packageId,
-  // });
-  // return imported;
-  return { 
-    packageName,
-    tempDirectory,
-    requireResult,
-    requireResultType: typeof requireResult,
-    // packager,
-    packagerType: typeof packager,
-    // packagerImport: packager?.import,
-    packagerImportType: typeof packager?.import
-  };
+  const imported = await packager.import(pkg);
+  if (imported?.errors?.length) throw imported.errors;
+  return imported;
 }

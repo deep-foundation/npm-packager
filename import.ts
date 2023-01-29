@@ -12,7 +12,7 @@ fs.readFileSync('import-code.ts','utf8');
 console.log(pkg.data[8])
 
 const rootClient = generateApolloClient({
-  path: '3006-deepfoundation-dev-h183uazebok.ws-eu84.gitpod.io/gql',
+  path: '3006-deepfoundation-dev-h183uazebok.ws-us84.gitpod.io/gql',
   ssl: true,
   token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiYWRtaW4iLCJ4LWhhc3VyYS11c2VyLWlkIjoiMzYyIn0sImlhdCI6MTY3MzA0MTM1OH0.sn3W9cbCDSuBxt3n4q8Hfxth1ZdPXcmFglQL8VEULeE",
 });
