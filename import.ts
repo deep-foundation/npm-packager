@@ -11,22 +11,33 @@ fs.readFileSync('import-code.ts','utf8');
 
 console.log(pkg.data[8])
 
-const rootClient = generateApolloClient({
-  path: '3006-deepfoundation-dev-h183uazebok.ws-us84.gitpod.io/gql',
+const gql = generateApolloClient({
+  path: '3006-deepfoundation-dev-h183uazebok.ws-eu84.gitpod.io/gql',
   ssl: true,
   token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiYWRtaW4iLCJ4LWhhc3VyYS11c2VyLWlkIjoiMzYyIn0sImlhdCI6MTY3MzA0MTM1OH0.sn3W9cbCDSuBxt3n4q8Hfxth1ZdPXcmFglQL8VEULeE",
 });
 
-const root = new DeepClient({
-  apolloClient: rootClient,
+const deep = new DeepClient({
+  apolloClient: gql,
 });
 
-const packager = new Packager(root);
-const run = async () => {
-  const { errors, packageId, namespaceId } = await packager.import(pkg);
+// A temporary way to give package admin permissions
+const containHandlerIntoAdmin = async (imported) => {
+  const handlerId = imported.ids[1];
+  const adminId = 362;
+  const containTypeId = await deep.id('@deep-foundation/core', 'Contain');
+  const result = await deep.insert({
+    type_id: containTypeId,
+    from_id: adminId,
+    to_id: handlerId,
+  });
+  return result;
+};
 
-  console.log(errors);
-  console.log(packageId);
-  console.log(namespaceId);
+const packager = new Packager(deep);
+const run = async () => {
+  const imported = await packager.import(pkg);
+  console.log(imported);
+  const result = await containHandlerIntoAdmin(imported);
 }
 run();

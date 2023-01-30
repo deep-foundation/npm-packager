@@ -33,6 +33,7 @@ async ({ deep, require, gql, data: { newLink } }) => {
   const deepImport = async (pkg) => {
     const packager = new (require('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
     const imported = await packager.import(pkg);
+    console.log(imported);
     if (imported?.errors?.length) throw imported.errors;
     return imported;
   };
