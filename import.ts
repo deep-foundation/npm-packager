@@ -6,10 +6,13 @@ import pkg from './deep.json';
 
 console.log(pkg.data[8]);
 
-pkg.data[8].value.value = 
-fs.readFileSync('import-code.ts','utf8');
+const encoding = 'utf8';
 
-console.log(pkg.data[8])
+pkg.data[8].value.value = fs.readFileSync('install-code.ts', encoding);
+
+console.log(pkg.data[8]);
+
+fs.writeFileSync('deep.json', JSON.stringify(pkg, null, 2), encoding);
 
 const gql = generateApolloClient({
   path: '3006-deepfoundation-dev-h183uazebok.ws-eu84.gitpod.io/gql',
