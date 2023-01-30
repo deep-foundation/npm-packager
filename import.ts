@@ -25,8 +25,7 @@ const deep = new DeepClient({
 });
 
 // A temporary way to give package admin permissions
-const containHandlerIntoAdmin = async (imported) => {
-  const handlerId = imported.ids[1];
+const containHandlerIntoAdmin = async (handlerId) => {
   const adminId = 362;
   const containTypeId = await deep.id('@deep-foundation/core', 'Contain');
   const result = await deep.insert({
@@ -41,6 +40,12 @@ const packager = new Packager(deep);
 const run = async () => {
   const imported = await packager.import(pkg);
   console.log(imported);
-  const result = await containHandlerIntoAdmin(imported);
+
+  const handlerTypeId = await deep.id('@deep-foundation/core', 'Handler');
+  const { data: [handler] } = await deep.select({
+    id: { _in: imported.ids },
+  	type_id: { _eq: handlerTypeId }
+  });
+  const result = await containHandlerIntoAdmin(handler.id);
 }
 run();
