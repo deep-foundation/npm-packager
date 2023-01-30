@@ -40,6 +40,9 @@ async ({ deep, require, gql, data: { newLink } }) => {
 
   const { data: [packageQuery] } = await deep.select({ id: newLink.to_id });
   const packageName = packageQuery?.value?.value;
+  if (!packageName) {
+    throw "Package query value is empty.";
+  }
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
   const pkg = getPackage(tempDirectory, packageName);
