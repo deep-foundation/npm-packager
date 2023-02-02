@@ -68,7 +68,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const result = await deep.select({
     up: {
       tree_id: { _eq: containTreeId },
-      parent: { id: { _eq: deep.linkId } },
+      parent: { id: { _eq: triggeredByLinkId } },
       link: { type_id: { _eq: tokenTypeId } }
     }
   });
