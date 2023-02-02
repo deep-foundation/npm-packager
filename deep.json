@@ -61,6 +61,20 @@
       "id": 8
     },
     {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "Value"
+      },
+      "id": 9
+    },
+    {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "String"
+      },
+      "id": 10
+    },
+    {
       "id": "Install",
       "type": 1,
       "from": 2,
@@ -109,6 +123,16 @@
       "type": 6,
       "from": "Publish",
       "to": "publishCodeHandler"
+    },
+    {
+      "id": "Token",
+      "type": 1
+    },
+    {
+      "id": "tokenValue",
+      "type": 9,
+      "from": "Token",
+      "to": 10
     }
   ],
   "errors": [],
