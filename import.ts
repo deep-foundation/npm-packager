@@ -6,7 +6,7 @@ import pkg from './deep.json';
 const gql = generateApolloClient({
   path: '3006-deepfoundation-dev-h183uazebok.ws-eu85.gitpod.io/gql',
   ssl: true,
-  token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiYWRtaW4iLCJ4LWhhc3VyYS11c2VyLWlkIjoiMzYyIn0sImlhdCI6MTY3MzA0MTM1OH0.sn3W9cbCDSuBxt3n4q8Hfxth1ZdPXcmFglQL8VEULeE",
+  token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsiYWRtaW4iXSwieC1oYXN1cmEtZGVmYXVsdC1yb2xlIjoiYWRtaW4iLCJ4LWhhc3VyYS11c2VyLWlkIjoiMzYyIn0sImlhdCI6MTY3NTM0OTgxMX0.eJZLnHf61FNxUurw50T8uednPokDjBSchq9XznJ9U_4",
 });
 
 const deep = new DeepClient({
