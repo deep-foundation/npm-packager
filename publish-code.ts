@@ -1,4 +1,4 @@
-async ({ deep, require, gql, data: { newLink } }) => {
+async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const fs = require('fs');
   const semver = require('semver')
   
@@ -65,15 +65,15 @@ async ({ deep, require, gql, data: { newLink } }) => {
   const containTreeId = await deep.id('@deep-foundation/core', 'containTree');
   const tokenTypeId = await deep.id('@deep-foundation/npm-packager', 'Token');
 
-  const { data: [token] } = await deep.select({
-    up: { 
+  const result = await deep.select({
+    up: {
       tree_id: { _eq: containTreeId },
       parent: { id: { _eq: deep.linkId } },
       link: { type_id: { _eq: tokenTypeId } }
     }
   });
 
-  return { packageName, userId: deep.linkId, containTreeId, tokenTypeId, token };
+  return { triggeredByLinkId, packageName, userId: deep.linkId, containTreeId, tokenTypeId, result };
 
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
