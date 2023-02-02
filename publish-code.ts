@@ -23,12 +23,36 @@ async ({ deep, require, gql, data: { newLink } }) => {
     console.log(`${command}\n`, output);
     return output;
   };
-  const getPackage = (tempDirectory, packageName) => {
-    const packageFile = [tempDirectory, 'node_modules', packageName, 'deep.json'].join('/');
-    console.log(packageFile);
-    const pkg = require(packageFile);
-    console.log(pkg);
-    return pkg;
+  const npmLogin = (tempDirectory) => {
+    const execSync = require('child_process').execSync;
+
+    const command = `npm set "//registry.npmjs.org/:_authToken" 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`;
+    const output = execSync(command, { 
+        encoding: 'utf-8',
+        cwd: tempDirectory
+    });
+    console.log(`${command}\n`, output);
+    return output;
+  };
+  const npmPublish = (tempDirectory) => {
+    const execSync = require('child_process').execSync;
+
+    const command = `npm publish --access public`;
+    const output = execSync(command, { 
+        encoding: 'utf-8',
+        cwd: tempDirectory
+    });
+    console.log(`${command}\n`, output);
+    return output;
+  };
+  const makeDeepPackagePath = (tempDirectory, packageName) => [tempDirectory, 'node_modules', packageName].join('/');
+  const makeDeepJsonPath = (packagePath) => [packagePath, 'deep.json'].join('/');
+  const deepExport = async (packageId) => {
+    const packager = new (require('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
+    const exported = await packager.export({ packageLinkId: packageId });
+    console.log(exported);
+    if (exported?.errors?.length) throw exported.errors;
+    return exported;
   };
 
   const { data: [packageQuery] } = await deep.select({ id: newLink.to_id });
@@ -38,7 +62,9 @@ async ({ deep, require, gql, data: { newLink } }) => {
   }
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
-  const pkg = getPackage(tempDirectory, packageName);
+  const deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
+  const deepJsonPath = makeDeepJsonPath(deepPackagePath);
+  // const pkg = require(deepJsonPath);
 
   // const npmPckgPath = [pckgDir,'package.json'].join('/');
   // const npmPckgJSON = fs.readFileSync(npmPckgPath, { encoding: 'utf-8' });
@@ -61,6 +87,17 @@ async ({ deep, require, gql, data: { newLink } }) => {
   // const deepPckgContent = await packager.export({ packageLinkId: id });
   // fs.writeFileSync([pckgDir,'deep.json'].join('/'), JSON.stringify(deepPckgContent), { encoding: 'utf-8' });
   // child_process.execSync(`cd ${pckgDir}; npm publish;`,{stdio:[0,1,2]});
+
+  const pkg = await deepExport(newLink.from_id);
+
+  console.log(pkg);
+
+  const encoding = 'utf8';
+
+  fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
+
+  npmLogin(deepPackagePath);
+  npmPublish(deepPackagePath);
 
   fs.rmSync(tempDirectory, { recursive: true, force: true });
   // const exported = await deepExport();
