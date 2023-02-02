@@ -82,18 +82,20 @@ if (!npmPckgJSON) {
   npmPckg = JSON.parse(npmPckgJSON);
   npmPckg.version = nextVersion = semver.inc(npmPckg?.version || '0.0.0', 'patch');
 }
+
+// TODO: Not sure about this. 
+// TODO: Should we update the version inside deep? 
+// TODO: May be we would allow to user to set specific version if they like?
 // await deep.update({
 //   link: {
 //     type_id: { _eq: _ids?.['@deep-foundation/core']?.PackageVersion },
-//     to_id: { _eq: id },
+//     to_id: { _eq: newLink.from_id },
 //   },
 // }, { value: nextVersion }, { table: 'strings' });
-fs.writeFileSync(packageJsonPath, JSON.stringify(npmPckg), { encoding });
-// const deepPckgContent = await packager.export({ packageLinkId: id });
-// fs.writeFileSync([pckgDir,'deep.json'].join('/'), JSON.stringify(deepPckgContent), { encoding: 'utf-8' });
-// child_process.execSync(`cd ${pckgDir}; npm publish;`,{stdio:[0,1,2]});
 
-//   const pkg = await deepExport(newLink.from_id);
+fs.writeFileSync(packageJsonPath, JSON.stringify(npmPckg), { encoding });
+
+// const pkg = await deepExport(newLink.from_id);
 
 console.log(pkg);
 
