@@ -62,16 +62,18 @@ async ({ deep, require, gql, data: { newLink } }) => {
   if (!packageName) {
     throw 'Package query value is empty.';
   }
+  const containTreeId = await deep.id('@deep-foundation/core', 'containTree');
+  const tokenTypeId = await deep.id('@deep-foundation/npm-packager', 'Token');
 
   const { data: [token] } = await deep.select({
     up: { 
-      tree_id: { _eq: await deep.id('@deep-foundation/core', 'containTree') },
+      tree_id: { _eq: containTreeId },
       parent: { id: { _eq: deep.linkId } },
-      link: { type_id: { _eq: await deep.id('@deep-foundation/npm-packager', 'Token') } }
+      link: { type_id: { _eq: tokenTypeId } }
     }
   });
 
-  return token;
+  return { packageName, userId: deep.linkId, containTreeId, tokenTypeId, token };
 
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
