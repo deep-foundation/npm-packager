@@ -24,10 +24,10 @@ async ({ deep, require, gql, data: { newLink } }) => {
     console.log(`${command}\n`, output);
     return output;
   };
-  const npmLogin = (tempDirectory) => {
+  const npmLogin = (token, tempDirectory) => {
     const execSync = require('child_process').execSync;
   
-    const command = `npm set "//registry.npmjs.org/:_authToken" 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`;
+    const command = `npm set "//registry.npmjs.org/:_authToken" ${token}`;
     const output = execSync(command, { 
         encoding: 'utf-8',
         cwd: tempDirectory
@@ -60,8 +60,19 @@ async ({ deep, require, gql, data: { newLink } }) => {
   const { data: [packageQuery] } = await deep.select({ id: newLink.to_id });
   const packageName = packageQuery?.value?.value;
   if (!packageName) {
-    throw "Package query value is empty.";
+    throw 'Package query value is empty.';
   }
+
+  const { data: [token] } = await deep.select({
+    up: { 
+      tree_id: { _eq: await deep.id('@deep-foundation/core', 'containTree') },
+      parent: { id: { _eq: deep.linkId } },
+      link: { type_id: { _eq: await deep.id('@deep-foundation/npm-packager', 'Token') } }
+    }
+  });
+
+  return token;
+
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
   const deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
@@ -81,15 +92,15 @@ async ({ deep, require, gql, data: { newLink } }) => {
     npmPckg.version = nextVersion = semver.inc(npmPckg?.version || '0.0.0', 'patch');
   }
   
-  // TODO: Not sure about this. 
-  // TODO: Should we update the version inside deep? 
-  // TODO: May be we would allow to user to set specific version if they like?
-  // await deep.update({
-  //   link: {
-  //     type_id: { _eq: _ids?.['@deep-foundation/core']?.PackageVersion },
-  //     to_id: { _eq: newLink.from_id },
-  //   },
-  // }, { value: nextVersion }, { table: 'strings' });
+  // TODO: Not sure about this.
+  // TODO: Should we update the version inside deep?
+  // TODO: May be we would allow to user to set specific version if they like or only they can interpret changes in code?
+  await deep.update({
+    link: {
+      type_id: { _eq: await deep.id('@deep-foundation/core', 'PackageVersion') },
+      to_id: { _eq: newLink.from_id },
+    },
+  }, { value: nextVersion }, { table: 'strings' });
   
   fs.writeFileSync(packageJsonPath, JSON.stringify(npmPckg), { encoding });
   
