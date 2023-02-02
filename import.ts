@@ -1,18 +1,7 @@
 import { generateApolloClient } from '@deep-foundation/hasura/client';
 import { DeepClient } from '@deep-foundation/deeplinks/imports/client';
 import { Packager } from '@deep-foundation/deeplinks/imports/packager';
-import * as fs from 'fs';
 import pkg from './deep.json';
-
-// console.log(pkg.data[8]);
-
-const encoding = 'utf8';
-
-pkg.data[8].value.value = fs.readFileSync('install-code.ts', encoding);
-
-// console.log(pkg.data[8]);
-
-fs.writeFileSync('deep.json', JSON.stringify(pkg, null, 2), encoding);
 
 const gql = generateApolloClient({
   path: '3006-deepfoundation-dev-h183uazebok.ws-eu85.gitpod.io/gql',
@@ -24,7 +13,7 @@ const deep = new DeepClient({
   apolloClient: gql,
 });
 
-const shareAdminPermissionsWithAdmin = async (packageId) => {
+const shareAdminPermissionsWithPackage = async (packageId) => {
   const adminId = 362;
   const joinTypeId = await deep.id('@deep-foundation/core', 'Join');
   const result = await deep.insert({
@@ -39,12 +28,8 @@ const packager = new Packager(deep);
 const run = async () => {
   const imported = await packager.import(pkg);
   console.log(imported);
+  await shareAdminPermissionsWithPackage(imported.packageId);
 
-  const packageTypeId = await deep.id('@deep-foundation/core', 'Package');
-  const { data: [deepPackage] } = await deep.select({
-    id: { _in: imported.ids },
-  	type_id: { _eq: packageTypeId }
-  });
-  const result = await shareAdminPermissionsWithAdmin(deepPackage.id);
+  console.log('npm-packager package import complete')
 }
 run();

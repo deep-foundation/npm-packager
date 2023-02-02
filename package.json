@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "license": "Unlicense",
   "scripts": {
-    "import": "npx ts-node import.ts",
+    "build": "npx ts-node build.ts",
+    "import": "npm run build && npx ts-node import.ts",
     "test": "npx ts-node test.ts"
   },
   "dependencies": {
