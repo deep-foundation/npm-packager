@@ -54,6 +54,13 @@
       "id": 7
     },
     {
+      "package": {
+        "dependencyId": 0,
+        "containValue": "Package"
+      },
+      "id": 8
+    },
+    {
       "id": "Install",
       "type": 1,
       "from": 2,
@@ -77,6 +84,31 @@
       "type": 6,
       "from": "Install",
       "to": "installCodeHandler"
+    },
+    {
+      "id": "Publish",
+      "type": 1,
+      "from": 8,
+      "to": 3
+    },
+    {
+      "id": "publishCode",
+      "type": 4,
+      "value": {
+        "value": ""
+      }
+    },
+    {
+      "id": "publishCodeHandler",
+      "type": 5,
+      "from": 7,
+      "to": "publishCode"
+    },
+    {
+      "id": "publishCodeHandleInsert",
+      "type": 6,
+      "from": "Publish",
+      "to": "publishCodeHandler"
     }
   ],
   "errors": [],

@@ -5,7 +5,11 @@ import pkg from './deep.json';
 
 const encoding = 'utf8';
 
-pkg.data[8].value.value = fs.readFileSync('install-code.ts', encoding);
+const [installCode] = pkg.data.filter(l => l.id === "installCode");
+installCode.value.value = fs.readFileSync('install-code.ts', encoding);
+
+const [publishCode] = pkg.data.filter(l => l.id === "publishCode");
+installCode.value.value = fs.readFileSync('publish-code.ts', encoding);
 
 // console.log(pkg.data[8]);
 
