@@ -15,7 +15,7 @@ async ({ deep, require, gql, data: { newLink } }) => {
   const npmInstall = (packageName, tempDirectory) => {
     const execSync = require('child_process').execSync;
 
-    const command = `npm i ${packageName}`;
+    const command = `npm --prefix "${tempDirectory}" i ${packageName}`;
     const output = execSync(command, { 
         encoding: 'utf-8',
         cwd: tempDirectory
