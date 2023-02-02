@@ -48,5 +48,10 @@ async ({ deep, require, gql, data: { newLink } }) => {
   const pkg = getPackage(tempDirectory, packageName);
   fs.rmSync(tempDirectory, { recursive: true, force: true });
   const imported = await deepImport(pkg);
+  await deep.insert({
+    type_id: await deep.id('@deep-foundation/core', 'Contain'),
+    from_id: newLink.from_id,
+    to_id: imported.packageId,
+  });
   return imported;
 }
