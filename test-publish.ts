@@ -1,6 +1,5 @@
-import pkg_ from './deep.json';
+import fs from 'fs';
 
-const fs = require('fs');
 const semver = require('semver')
 
 const makeTempDirectory = () => {

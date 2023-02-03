@@ -1,6 +1,4 @@
-import pkg_ from './deep.json';
-
-const fs = require('fs');
+import fs from 'fs';
 
 const makeTempDirectory = () => {
   const os = require('os');

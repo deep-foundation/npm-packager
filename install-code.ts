@@ -38,8 +38,7 @@ async ({ deep, require, gql, data: { newLink } }) => {
     return imported;
   };
 
-  const { data: [packageQuery] } = await deep.select({ id: newLink.to_id });
-  const packageName = packageQuery?.value?.value;
+  const { data: [{ value: { value: packageName } }] } = await deep.select({ id: newLink.to_id });
   if (!packageName) {
     throw "Package query value is empty.";
   }

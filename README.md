@@ -4,9 +4,7 @@
 
 NPM packager package on npm for Deep.
 
+## Usage
 
-Usage:
-
-```
-npm run import
-```
+1. Update `config.json` with target Deep instance settings.
+2. Run: `npm run import`

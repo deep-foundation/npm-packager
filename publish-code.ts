@@ -1,6 +1,6 @@
 async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const fs = require('fs');
-  const semver = require('semver')
+  const encoding = 'utf8';
   
   const makeTempDirectory = () => {
     const os = require('os');
@@ -56,66 +56,57 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     if (exported?.errors?.length) throw exported.errors;
     return exported;
   };
+  const loadNpmToken = async () => {
+    const containTreeId = await deep.id('@deep-foundation/core', 'containTree');
+    const tokenTypeId = await deep.id('@deep-foundation/npm-packager', 'Token');
+    const { data: [{ value: { value: npmToken }}]} = await deep.select({
+      up: {
+        tree_id: { _eq: containTreeId },
+        parent: { id: { _eq: triggeredByLinkId } },
+        link: { type_id: { _eq: tokenTypeId } }
+      }
+    });
+    return npmToken;
+  };
+  const updateVersion = async (packageJsonPath, packageId) => {
+    const semver = require('semver');
+
+    const packageJson = fs.readFileSync(packageJsonPath, { encoding });
+    if (!packageJson) {
+      throw 'package.json is not found in installed package';
+    }
+    const npmPackage = JSON.parse(packageJson);
+    const nextVersion = npmPackage.version = semver.inc(npmPackage?.version || '0.0.0', 'patch');
+    
+    // TODO: Not sure about this.
+    // TODO: Should we update the version inside deep?
+    // TODO: May be we would allow to user to set specific version if they like or only they can interpret changes in code?
+    await deep.update({
+      link: {
+        type_id: { _eq: await deep.id('@deep-foundation/core', 'PackageVersion') },
+        to_id: { _eq: packageId },
+      },
+    }, { value: nextVersion }, { table: 'strings' });
+    fs.writeFileSync(packageJsonPath, JSON.stringify(npmPackage, null, 2), { encoding });
+  };
   
   const { data: [packageQuery] } = await deep.select({ id: newLink.to_id });
   const packageName = packageQuery?.value?.value;
   if (!packageName) {
     throw 'Package query value is empty.';
   }
-  const containTreeId = await deep.id('@deep-foundation/core', 'containTree');
-  const tokenTypeId = await deep.id('@deep-foundation/npm-packager', 'Token');
-
-  const { data: [{ value: { value: npmToken }}]} = await deep.select({
-    up: {
-      tree_id: { _eq: containTreeId },
-      parent: { id: { _eq: triggeredByLinkId } },
-      link: { type_id: { _eq: tokenTypeId } }
-    }
-  });
-
-  // return { triggeredByLinkId, packageName, userId: deep.linkId, containTreeId, tokenTypeId, npmToken };
-
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
   const deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
-  const deepJsonPath = makeDeepJsonPath(deepPackagePath);
   const packageJsonPath = makePackageJsonPath(deepPackagePath);
-  // const pkg = require(deepJsonPath);
-  
-  const encoding = 'utf8';
-  
-  const npmPckgJSON = fs.readFileSync(packageJsonPath, { encoding });
-  let npmPckg;
-  let nextVersion;
-  if (!npmPckgJSON) {
-    throw 'package.json is not found in installed package';
-  } else {
-    npmPckg = JSON.parse(npmPckgJSON);
-    npmPckg.version = nextVersion = semver.inc(npmPckg?.version || '0.0.0', 'patch');
-  }
-  
-  // TODO: Not sure about this.
-  // TODO: Should we update the version inside deep?
-  // TODO: May be we would allow to user to set specific version if they like or only they can interpret changes in code?
-  await deep.update({
-    link: {
-      type_id: { _eq: await deep.id('@deep-foundation/core', 'PackageVersion') },
-      to_id: { _eq: newLink.from_id },
-    },
-  }, { value: nextVersion }, { table: 'strings' });
-  
-  fs.writeFileSync(packageJsonPath, JSON.stringify(npmPckg, null, 2), { encoding });
-  
-  const pkg = await deepExport(newLink.from_id);
-  
+  const packageId = newLink.from_id;
+  await updateVersion(packageJsonPath, packageId);
+  const pkg = await deepExport(packageId);
   console.log(pkg);
-  
+  const deepJsonPath = makeDeepJsonPath(deepPackagePath);
   fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
-  
+  const npmToken = await loadNpmToken();
   npmLogin(npmToken, deepPackagePath);
   npmPublish(deepPackagePath);
-  
   fs.rmSync(tempDirectory, { recursive: true, force: true });
-  // const exported = await deepExport();
-  // return exported;
 }
