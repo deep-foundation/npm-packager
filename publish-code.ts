@@ -65,7 +65,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const containTreeId = await deep.id('@deep-foundation/core', 'containTree');
   const tokenTypeId = await deep.id('@deep-foundation/npm-packager', 'Token');
 
-  const result = await deep.select({
+  const { data: [{ value: { value: npmToken }}]} = await deep.select({
     up: {
       tree_id: { _eq: containTreeId },
       parent: { id: { _eq: triggeredByLinkId } },
@@ -73,7 +73,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     }
   });
 
-  return { triggeredByLinkId, packageName, userId: deep.linkId, containTreeId, tokenTypeId, result };
+  // return { triggeredByLinkId, packageName, userId: deep.linkId, containTreeId, tokenTypeId, npmToken };
 
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
@@ -112,7 +112,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   
   fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
   
-  npmLogin(deepPackagePath);
+  npmLogin(npmToken, deepPackagePath);
   npmPublish(deepPackagePath);
   
   fs.rmSync(tempDirectory, { recursive: true, force: true });
