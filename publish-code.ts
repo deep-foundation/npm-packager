@@ -104,7 +104,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     },
   }, { value: nextVersion }, { table: 'strings' });
   
-  fs.writeFileSync(packageJsonPath, JSON.stringify(npmPckg), { encoding });
+  fs.writeFileSync(packageJsonPath, JSON.stringify(npmPckg, null, 2), { encoding });
   
   const pkg = await deepExport(newLink.from_id);
   
