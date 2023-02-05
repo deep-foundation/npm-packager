@@ -6,7 +6,8 @@
     "build": "npx ts-node build.ts",
     "import": "npm run build && npx ts-node import.ts",
     "test-install": "npx ts-node test-install.ts",
-    "test-publish": "npx ts-node test-publish.ts"
+    "test-publish": "npx ts-node test-publish.ts",
+    "test-deep": "npx ts-node test-deep.ts"
   },
   "dependencies": {
     "@deep-foundation/deeplinks": "0.0.98",

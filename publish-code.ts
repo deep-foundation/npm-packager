@@ -93,13 +93,23 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const { data: [packageQuery] } = await deep.select({ id: newLink.to_id });
   const packageName = packageQuery?.value?.value;
   if (!packageName) {
-    throw 'Package query value is empty.';
+    throw new Error('Package query value is empty.');
+  }
+  const packageId = newLink.from_id;  
+  const { data: [{ value: actualPackageName }]} = await deep.select(
+    { link_id: { _eq: packageId } },
+    {
+      table: 'strings',
+      returning: 'value'
+    }
+  );
+  if (packageName !== actualPackageName) {
+    throw new Error('Package query value should be equal to actual package name.');
   }
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
   const deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
   const packageJsonPath = makePackageJsonPath(deepPackagePath);
-  const packageId = newLink.from_id;
   await updateVersion(packageJsonPath, packageId);
   const pkg = await deepExport(packageId);
   console.log(pkg);
