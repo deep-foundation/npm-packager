@@ -17,12 +17,23 @@ const npmInstall = (packageName, tempDirectory) => {
   const execSync = require('child_process').execSync;
 
   const command = `npm --prefix "${tempDirectory}" i ${packageName}`;
-  const output = execSync(command, { 
-      encoding: 'utf-8',
-      cwd: tempDirectory
-  });
-  console.log(`${command}\n`, output);
-  return output;
+  try {
+    const output = execSync(command, { 
+        encoding: 'utf-8',
+        cwd: tempDirectory
+    }).toString();
+    console.log(`${command}\n`, output);
+    return {
+      resolved: {
+        status: 0,
+        stdout: output
+      }
+    };
+  } catch(error) {
+    return {
+      rejected: error
+    };
+  }
 };
 const npmLogin = (tempDirectory) => {
   const execSync = require('child_process').execSync;
@@ -46,6 +57,18 @@ const npmPublish = (tempDirectory) => {
   console.log(`${command}\n`, output);
   return output;
 };
+
+const tempDirectory = makeTempDirectory();
+
+
+npmInstall('fdsafdsfsdfsdfsafsdfsdafd', tempDirectory);
+
+
+
+console.log('before exit');
+process.exit();
+console.log('after exit');
+
 const makeDeepPackagePath = (tempDirectory, packageName) => [tempDirectory, 'node_modules', packageName].join('/');
 const makeDeepJsonPath = (packagePath) => [packagePath, 'deep.json'].join('/');
 const makePackageJsonPath = (packagePath) => [packagePath, 'package.json'].join('/');
@@ -63,7 +86,7 @@ const packageName = "@deep-foundation/pow";
 if (!packageName) {
   throw "Package query value is empty.";
 }
-const tempDirectory = makeTempDirectory();
+// const tempDirectory = makeTempDirectory();
 npmInstall(packageName, tempDirectory);
 const deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
 const deepJsonPath = makeDeepJsonPath(deepPackagePath);

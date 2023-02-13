@@ -13,13 +13,13 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     console.log(tempDirectory);
     return tempDirectory;
   };
-  const npmInstall = (packageName, tempDirectory) => {
+  const npmInstall = (packageName, installationPath) => {
     const execSync = require('child_process').execSync;
   
-    const command = `npm --prefix "${tempDirectory}" i ${packageName}`;
+    const command = `npm --prefix "${installationPath}" i ${packageName}`;
     const output = execSync(command, { 
         encoding: 'utf-8',
-        cwd: tempDirectory
+        cwd: installationPath
     });
     console.log(`${command}\n`, output);
     return output;
@@ -89,7 +89,13 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     }, { value: nextVersion }, { table: 'strings' });
     fs.writeFileSync(packageJsonPath, JSON.stringify(npmPackage, null, 2), { encoding });
   };
-  
+  const installDependencies = (packagePath, dependencies) => {
+    for (const dependency of dependencies) {
+      const packageName = `${dependency.name}@^${dependency.version}`;
+      npmInstall(packageName, packagePath);
+    }
+  }
+
   const { data: [packageQuery] } = await deep.select({ id: newLink.to_id });
   const packageName = packageQuery?.value?.value;
   if (!packageName) {
@@ -108,10 +114,12 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   }
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
+  // TODO: handle a case where was no npm package before export
   const deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
   const packageJsonPath = makePackageJsonPath(deepPackagePath);
   await updateVersion(packageJsonPath, packageId);
   const pkg = await deepExport(packageId);
+  installDependencies(deepPackagePath, pkg.dependencies)
   console.log(pkg);
   const deepJsonPath = makeDeepJsonPath(deepPackagePath);
   fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
