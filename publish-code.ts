@@ -17,12 +17,23 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     const execSync = require('child_process').execSync;
   
     const command = `npm --prefix "${installationPath}" i ${packageName}`;
-    const output = execSync(command, { 
+    try {
+      const output = execSync(command, { 
         encoding: 'utf-8',
         cwd: installationPath
-    });
-    console.log(`${command}\n`, output);
-    return output;
+      }).toString();
+      console.log(`${command}\n`, output);
+      return {
+        resolved: {
+          status: 0,
+          stdout: output
+        }
+      };
+    } catch(error) {
+      return {
+        rejected: error
+      };
+    }
   };
   const npmLogin = (token, tempDirectory) => {
     const execSync = require('child_process').execSync;
@@ -92,7 +103,12 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const installDependencies = (packagePath, dependencies) => {
     for (const dependency of dependencies) {
       const packageName = `${dependency.name}@^${dependency.version}`;
-      npmInstall(packageName, packagePath);
+      const installationResult = npmInstall(packageName, packagePath);
+      if (installationResult?.rejected) {
+        throw installationResult.rejected;
+      } else if (!installationResult?.resolved) {
+        throw new Error('Unsupported NPM dependency installation result.');
+      }
     }
   }
 
@@ -113,14 +129,28 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     throw new Error('Package query value should be equal to actual package name.');
   }
   const tempDirectory = makeTempDirectory();
-  npmInstall(packageName, tempDirectory);
-  // TODO: handle a case where was no npm package before export
-  const deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
-  const packageJsonPath = makePackageJsonPath(deepPackagePath);
+  const installationResult = npmInstall(packageName, tempDirectory);
+  let deepPackagePath; 
+  let packageJsonPath;
+  if (installationResult?.resolved) {
+    deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
+    packageJsonPath = makePackageJsonPath(deepPackagePath);
+  } else if(installationResult?.rejected) {
+    deepPackagePath = tempDirectory;
+    packageJsonPath = makePackageJsonPath(deepPackagePath);
+    const packageJson = {
+      name: packageName
+    };
+    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), encoding);
+  } else {
+    throw new Error('Unsupported NPM installation result.');
+  }
+  console.log('deepPackagePath', deepPackagePath);
+  console.log('packageJsonPath', packageJsonPath);
   await updateVersion(packageJsonPath, packageId);
   const pkg = await deepExport(packageId);
-  installDependencies(deepPackagePath, pkg.dependencies)
   console.log(pkg);
+  installDependencies(deepPackagePath, pkg.dependencies);
   const deepJsonPath = makeDeepJsonPath(deepPackagePath);
   fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
   const npmToken = await loadNpmToken();

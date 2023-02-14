@@ -60,9 +60,8 @@ const npmPublish = (tempDirectory) => {
 
 const tempDirectory = makeTempDirectory();
 
-
-npmInstall('fdsafdsfsdfsdfsafsdfsdafd', tempDirectory);
-
+const result = npmInstall('@deep-foundation/deeplinks', tempDirectory);
+console.log('result', result);
 
 
 console.log('before exit');
