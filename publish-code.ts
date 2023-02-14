@@ -91,7 +91,8 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     
     // TODO: Not sure about this.
     // TODO: Should we update the version inside deep?
-    // TODO: May be we would allow to user to set specific version if they like or only they can interpret changes in code?
+    // TODO: May be we would allow to user to set specific version 
+    // TODO: if they like or only they can interpret changes in code?
     await deep.update({
       link: {
         type_id: { _eq: await deep.id('@deep-foundation/core', 'PackageVersion') },
