@@ -23,13 +23,9 @@ async ({ deep, require, gql, data: { newLink } }) => {
     console.log(`${command}\n`, output);
     return output;
   };
-  const getPackage = (tempDirectory, packageName) => {
-    const packageFile = [tempDirectory, 'node_modules', packageName, 'deep.json'].join('/');
-    console.log(packageFile);
-    const pkg = require(packageFile);
-    console.log(pkg);
-    return pkg;
-  };
+  const makePackagePath = (tempDirectory, packageName) => [tempDirectory, 'node_modules', packageName].join('/');
+  const makeDeepJsonPath = (packagePath) => [packagePath, 'deep.json'].join('/');
+  const makePackageJsonPath = (packagePath) => [packagePath, 'package.json'].join('/');
   const deepImport = async (pkg) => {
     const packager = new (require('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
     const imported = await packager.import(pkg);
@@ -44,7 +40,10 @@ async ({ deep, require, gql, data: { newLink } }) => {
   }
   const tempDirectory = makeTempDirectory();
   npmInstall(packageName, tempDirectory);
-  const pkg = getPackage(tempDirectory, packageName);
+  const packagePath = makePackagePath(tempDirectory, packageName);
+  const deepJsonPath = makeDeepJsonPath(packagePath);
+  const packageJsonPath = makePackageJsonPath(packagePath);
+  const pkg = require(deepJsonPath);
   fs.rmSync(tempDirectory, { recursive: true, force: true });
   const imported = await deepImport(pkg);
   await deep.insert({
