@@ -133,6 +133,18 @@
       "type": 9,
       "from": "Token",
       "to": 10
+    },
+    {
+      "id": "Used",
+      "type": 1,
+      "from": "Install",
+      "to": 8
+    },
+    {
+      "id": "Installed",
+      "type": 1,
+      "from": "Install",
+      "to": 8
     }
   ],
   "errors": [],
