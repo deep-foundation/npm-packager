@@ -121,6 +121,7 @@ async ({ deep, require, gql, data: { newLink } }) => {
     console.log('packages', packages);
     const existingPackages = packages.reduce(
       (accumulator, currentValue) => {
+        const packageId = currentValue?.id;
         const packageName = currentValue?.name?.value;
         if (currentValue?.versions.length !== 1) {
           throw new Error(`'${packageName}' package must have exactly one version. Now it has ${currentValue?.versions.length} versions.`);
@@ -128,12 +129,14 @@ async ({ deep, require, gql, data: { newLink } }) => {
         if (accumulator[packageName]) {
           throw new Error(`Multiple packages with name '${packageName}' exist.`)
         }
-        accumulator[packageName] = currentValue?.versions?.[0]?.version?.value;
+        const packageVersion = currentValue?.versions?.[0]?.version?.value;
+        accumulator[packageName] = { id: packageId, version: packageVersion };
         return accumulator;
       },
       {}
     );
     console.log('existingPackages', existingPackages);
+    return existingPackages;
   };
 
   const { data: [{ value: { value: packageName } }] } = await deep.select({ id: newLink.to_id });
@@ -155,8 +158,9 @@ async ({ deep, require, gql, data: { newLink } }) => {
   console.log('packages', packages);
   
   const deepPackagesDependencies = getDeepPackagesDependencies(nodeModulesPath, packages);
-  console.log('deepPackagesDependencies', deepPackagesDependencies)
-  
+  delete deepPackagesDependencies[packageName];
+  console.log('deepPackagesDependencies', deepPackagesDependencies);
+
   const installationQueue = [];
   const installationSet = {};
   
@@ -165,8 +169,31 @@ async ({ deep, require, gql, data: { newLink } }) => {
   console.log('installationQueue', installationQueue);
   console.log('installationSet', installationSet);
   
-  const existingPackages = getExistingPackages(installationQueue);
+  const existingPackages = await getExistingPackages(installationQueue);
   console.log('existingPackages', existingPackages);
+
+  for (const packageName of installationQueue) {
+    const existingPackage = existingPackages[packageName];
+    if (existingPackage) {
+      await deep.insert({
+        type_id: await deep.id('@deep-foundation/npm-packager', 'Used'),
+        from_id: newLink.id,
+        to_id: existingPackage.id,
+      });
+    } else {
+      // Import package
+
+      // Where to get the path of deep.json?
+
+      // Insert Installed link
+      
+      // await deep.insert({
+      //   type_id: await deep.id('@deep-foundation/npm-packager', 'Installed'),
+      //   from_id: newLink.id,
+      //   to_id: importedPackageId,
+      // });
+    }
+  }
 
   //
 
