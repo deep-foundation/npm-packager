@@ -1,6 +1,12 @@
 import { generateApolloClient } from '@deep-foundation/hasura/client';
 import { DeepClient } from '@deep-foundation/deeplinks/imports/client';
+import { corePckg } from '@deep-foundation/deeplinks/imports/core';
 import config from './config.json';
+import * as fs from 'fs';
+
+fs.writeFileSync('core.json', JSON.stringify(corePckg, null, 2), 'utf-8');
+
+process.exit();
 
 const gql = generateApolloClient(config.endpoint);
 const deep = new DeepClient({ apolloClient: gql });

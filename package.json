@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/npm-packager",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "license": "Unlicense",
   "scripts": {
     "build": "npx ts-node build.ts",
@@ -10,7 +10,9 @@
     "test-deep": "npx ts-node test-deep.ts"
   },
   "dependencies": {
-    "@deep-foundation/core": "^0.0.1",
+    "@deep-foundation/core": "^0.0.1"
+  },
+  "devDependencies": {
     "@deep-foundation/deeplinks": "0.0.98",
     "@deep-foundation/hasura": "0.0.20",
     "semver": "^7.3.8",
