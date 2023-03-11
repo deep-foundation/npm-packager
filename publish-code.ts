@@ -1,6 +1,7 @@
 async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const fs = require('fs');
   const encoding = 'utf8';
+  const deepPackageKeyWord = 'deep-package';
   
   const makeTempDirectory = () => {
     const os = require('os');
@@ -101,6 +102,21 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     }, { value: nextVersion }, { table: 'strings' });
     fs.writeFileSync(packageJsonPath, JSON.stringify(npmPackage, null, 2), { encoding });
   };
+  const addKeyword = (packageJsonPath, keyword) => {
+    const packageJson = fs.readFileSync(packageJsonPath, { encoding });
+    if (!packageJson) {
+      throw 'package.json is not found in installed package';
+    }
+    const npmPackage = JSON.parse(packageJson);
+    if (npmPackage?.keywords?.length > 0) {
+      if (!npmPackage.keywords.includes(keyword)) {
+        npmPackage.keywords.push(keyword); 
+      }
+    } else {
+      npmPackage.keywords = [ keyword ];
+    }
+    fs.writeFileSync(packageJsonPath, JSON.stringify(npmPackage, null, 2), { encoding });
+  };
   const installDependencies = (packagePath, dependencies) => {
     for (const dependency of dependencies) {
       const packageName = `${dependency.name}@^${dependency.version}`;
@@ -148,6 +164,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   }
   console.log('deepPackagePath', deepPackagePath);
   console.log('packageJsonPath', packageJsonPath);
+  addKeyword(packageJsonPath, deepPackageKeyWord);
   await updateVersion(packageJsonPath, packageId);
   const pkg = await deepExport(packageId);
   console.log(pkg);
