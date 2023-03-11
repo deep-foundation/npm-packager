@@ -71,7 +71,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const loadNpmToken = async () => {
     const containTreeId = await deep.id('@deep-foundation/core', 'containTree');
     const tokenTypeId = await deep.id('@deep-foundation/npm-packager', 'Token');
-    const { data: [{ value: { value: npmToken }}]} = await deep.select({
+    const { data: [{ value: { value: npmToken = undefined } = {}} = {}] = []} = await deep.select({
       up: {
         tree_id: { _eq: containTreeId },
         parent: { id: { _eq: triggeredByLinkId } },
@@ -146,33 +146,39 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     throw new Error('Package query value should be equal to actual package name.');
   }
   const tempDirectory = makeTempDirectory();
-  const installationResult = npmInstall(packageName, tempDirectory);
-  let deepPackagePath; 
-  let packageJsonPath;
-  if (installationResult?.resolved) {
-    deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
-    packageJsonPath = makePackageJsonPath(deepPackagePath);
-  } else if(installationResult?.rejected) {
-    deepPackagePath = tempDirectory;
-    packageJsonPath = makePackageJsonPath(deepPackagePath);
-    const packageJson = {
-      name: packageName
-    };
-    fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), encoding);
-  } else {
-    throw new Error('Unsupported NPM installation result.');
+  try {
+    const npmToken = await loadNpmToken();
+    if (!npmToken) {
+      throw new Error('NPM token is required to publish package. NPM token should be contained by user that does insert publish link.');
+    }
+    npmLogin(npmToken, tempDirectory);
+    const installationResult = npmInstall(packageName, tempDirectory);
+    let deepPackagePath; 
+    let packageJsonPath;
+    if (installationResult?.resolved) {
+      deepPackagePath = makeDeepPackagePath(tempDirectory, packageName);
+      packageJsonPath = makePackageJsonPath(deepPackagePath);
+    } else if(installationResult?.rejected) {
+      deepPackagePath = tempDirectory;
+      packageJsonPath = makePackageJsonPath(deepPackagePath);
+      const packageJson = {
+        name: packageName
+      };
+      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), encoding);
+    } else {
+      throw new Error('Unsupported NPM installation result.');
+    }
+    console.log('deepPackagePath', deepPackagePath);
+    console.log('packageJsonPath', packageJsonPath);
+    addKeyword(packageJsonPath, deepPackageKeyWord);
+    await updateVersion(packageJsonPath, packageId);
+    const pkg = await deepExport(packageId);
+    console.log(pkg);
+    installDependencies(deepPackagePath, pkg.dependencies);
+    const deepJsonPath = makeDeepJsonPath(deepPackagePath);
+    fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
+    npmPublish(deepPackagePath);
+  } finally {
+    fs.rmSync(tempDirectory, { recursive: true, force: true });
   }
-  console.log('deepPackagePath', deepPackagePath);
-  console.log('packageJsonPath', packageJsonPath);
-  addKeyword(packageJsonPath, deepPackageKeyWord);
-  await updateVersion(packageJsonPath, packageId);
-  const pkg = await deepExport(packageId);
-  console.log(pkg);
-  installDependencies(deepPackagePath, pkg.dependencies);
-  const deepJsonPath = makeDeepJsonPath(deepPackagePath);
-  fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
-  const npmToken = await loadNpmToken();
-  npmLogin(npmToken, deepPackagePath);
-  npmPublish(deepPackagePath);
-  fs.rmSync(tempDirectory, { recursive: true, force: true });
 }

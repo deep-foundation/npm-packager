@@ -1,4 +1,4 @@
-async ({ deep, require, gql, data: { newLink } }) => {
+async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const fs = require('fs');
 
   const makeTempDirectory = () => {
@@ -23,9 +23,32 @@ async ({ deep, require, gql, data: { newLink } }) => {
     console.log(`${command}\n`, output);
     return output;
   };
+  const npmLogin = (token, tempDirectory) => {
+    const execSync = require('child_process').execSync;
+  
+    const command = `npm set "//registry.npmjs.org/:_authToken" ${token}`;
+    const output = execSync(command, { 
+        encoding: 'utf-8',
+        cwd: tempDirectory
+    });
+    console.log(`${command}\n`, output);
+    return output;
+  };
   const makePackagePath = (tempDirectory, packageName) => [tempDirectory, 'node_modules', packageName].join('/');
   const makeDeepJsonPath = (packagePath) => [packagePath, 'deep.json'].join('/');
   const makePackageJsonPath = (packagePath) => [packagePath, 'package.json'].join('/');
+  const loadNpmToken = async () => {
+    const containTreeId = await deep.id('@deep-foundation/core', 'containTree');
+    const tokenTypeId = await deep.id('@deep-foundation/npm-packager', 'Token');
+    const { data: [{ value: { value: npmToken = undefined } = {}} = {}] = []} = await deep.select({
+      up: {
+        tree_id: { _eq: containTreeId },
+        parent: { id: { _eq: triggeredByLinkId } },
+        link: { type_id: { _eq: tokenTypeId } }
+      }
+    });
+    return npmToken;
+  };
   const deepImport = async (deepJson, packageJson) => {
     if (deepJson.package.name !== packageJson.name) {
       throw new Error(`Package name is not synchronized between deep.json and package.json files.
@@ -160,30 +183,37 @@ async ({ deep, require, gql, data: { newLink } }) => {
     throw "Package query value is empty.";
   }
   const tempDirectory = makeTempDirectory();
-  const nodeModulesPath = [tempDirectory, 'node_modules'].join('/');
-  npmInstall(packageName, tempDirectory);
-  const packagePath = makePackagePath(tempDirectory, packageName);
-  const deepJsonPath = makeDeepJsonPath(packagePath);
-  const packageJsonPath = makePackageJsonPath(packagePath);
-  const deepJson = require(deepJsonPath);
-  const packageJson = require(packageJsonPath);
-
-  const packages = getDeepPackagesList(nodeModulesPath)
-  console.log('packages', packages);
-  
-  const deepPackagesDependencies = getDeepPackagesDependencies(nodeModulesPath, packages);
-  delete deepPackagesDependencies[packageName];
-  console.log('deepPackagesDependencies', deepPackagesDependencies);
-
+  let deepJson;
+  let packageJson;
   const installationQueue = [];
   const installationSet = {};
-  
-  buildInstallationQueue(deepPackagesDependencies, installationQueue, installationSet);
-  
-  console.log('installationQueue', installationQueue);
-  console.log('installationSet', installationSet);
+  try {
+    const npmToken = await loadNpmToken();
+    if (npmToken) {
+      npmLogin(npmToken, tempDirectory);
+    }
+    const nodeModulesPath = [tempDirectory, 'node_modules'].join('/');
+    npmInstall(packageName, tempDirectory);
+    const packagePath = makePackagePath(tempDirectory, packageName);
+    const deepJsonPath = makeDeepJsonPath(packagePath);
+    const packageJsonPath = makePackageJsonPath(packagePath);
+    deepJson = require(deepJsonPath);
+    packageJson = require(packageJsonPath);
 
-  fs.rmSync(tempDirectory, { recursive: true, force: true });
+    const packages = getDeepPackagesList(nodeModulesPath)
+    console.log('packages', packages);
+    
+    const deepPackagesDependencies = getDeepPackagesDependencies(nodeModulesPath, packages);
+    delete deepPackagesDependencies[packageName];
+    console.log('deepPackagesDependencies', deepPackagesDependencies);
+    
+    buildInstallationQueue(deepPackagesDependencies, installationQueue, installationSet);
+    
+    console.log('installationQueue', installationQueue);
+    console.log('installationSet', installationSet);
+  } finally {
+    fs.rmSync(tempDirectory, { recursive: true, force: true });
+  }
   
   const existingPackages = await getExistingPackages(installationQueue.map(e => e.name));
   console.log('existingPackages', existingPackages);
