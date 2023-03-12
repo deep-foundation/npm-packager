@@ -1,0 +1,960 @@
+{
+    "package": {
+      "name": "@deep-foundation/core",
+      "version": "0.0.2"
+    },
+    "data": [
+      {
+        "id": "Type",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "Package",
+        "type": "Type"
+      },
+      {
+        "id": "Contain",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "Value",
+        "type": "Type",
+        "from": "Any",
+        "to": "Type"
+      },
+      {
+        "id": "String",
+        "type": "Type"
+      },
+      {
+        "id": "Number",
+        "type": "Type"
+      },
+      {
+        "id": "Object",
+        "type": "Type"
+      },
+      {
+        "id": "Any",
+        "type": "Type"
+      },
+      {
+        "id": "Promise",
+        "type": "Type"
+      },
+      {
+        "id": "Then",
+        "type": "Type",
+        "from": "Any",
+        "to": "Promise"
+      },
+      {
+        "id": "Resolved",
+        "type": "Type",
+        "from": "Promise",
+        "to": "Any"
+      },
+      {
+        "id": "Rejected",
+        "type": "Type",
+        "from": "Promise",
+        "to": "Any"
+      },
+      {
+        "id": "typeValue",
+        "type": "Value",
+        "from": "Type",
+        "to": "String"
+      },
+      {
+        "id": "packageValue",
+        "type": "Value",
+        "from": "Package",
+        "to": "String"
+      },
+      {
+        "id": "Selector",
+        "type": "Type"
+      },
+      {
+        "id": "SelectorInclude",
+        "type": "Type",
+        "from": "Selector",
+        "to": "Any"
+      },
+      {
+        "id": "Rule",
+        "type": "Type"
+      },
+      {
+        "id": "RuleSubject",
+        "type": "Type",
+        "from": "Rule",
+        "to": "Selector"
+      },
+      {
+        "id": "RuleObject",
+        "type": "Type",
+        "from": "Rule",
+        "to": "Selector"
+      },
+      {
+        "id": "RuleAction",
+        "type": "Type",
+        "from": "Rule",
+        "to": "Selector"
+      },
+      {
+        "id": "containValue",
+        "type": "Value",
+        "from": "Contain",
+        "to": "String"
+      },
+      {
+        "id": "User",
+        "type": "Type"
+      },
+      {
+        "id": "Operation",
+        "type": "Type"
+      },
+      {
+        "id": "operationValue",
+        "type": "Value",
+        "from": "Operation",
+        "to": "String"
+      },
+      {
+        "id": "AllowInsert",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowUpdate",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowDelete",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowSelect",
+        "type": "Operation"
+      },
+      {
+        "id": "File",
+        "type": "Type"
+      },
+      {
+        "id": "SyncTextFile",
+        "type": "File"
+      },
+      {
+        "id": "syncTextFileValue",
+        "type": "Value",
+        "from": "SyncTextFile",
+        "to": "String"
+      },
+      {
+        "id": "ExecutionProvider",
+        "type": "Type"
+      },
+      {
+        "id": "JSExecutionProvider",
+        "type": "ExecutionProvider"
+      },
+      {
+        "id": "TreeInclude",
+        "type": "Type",
+        "from": "Type",
+        "to": "Any"
+      },
+      {
+        "id": "Handler",
+        "type": "Type",
+        "from": "Supports",
+        "to": "Any"
+      },
+      {
+        "id": "Tree",
+        "type": "Type"
+      },
+      {
+        "id": "TreeIncludeDown",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeUp",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeNode",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "containTree",
+        "type": "Tree"
+      },
+      {
+        "id": "containTreeContain",
+        "type": "TreeIncludeDown",
+        "from": "containTree",
+        "to": "Contain"
+      },
+      {
+        "id": "containTreeAny",
+        "type": "TreeIncludeNode",
+        "from": "containTree",
+        "to": "Any"
+      },
+      {
+        "id": "PackageNamespace",
+        "type": "Type"
+      },
+      {
+        "id": "packageNamespaceValue",
+        "type": "Value",
+        "from": "PackageNamespace",
+        "to": "String"
+      },
+      {
+        "id": "PackageActive",
+        "type": "Type",
+        "from": "PackageNamespace",
+        "to": "Package"
+      },
+      {
+        "id": "PackageVersion",
+        "type": "Type",
+        "from": "PackageNamespace",
+        "to": "Package"
+      },
+      {
+        "id": "packageVersionValue",
+        "type": "Value",
+        "from": "PackageVersion",
+        "to": "String"
+      },
+      {
+        "id": "HandleOperation",
+        "type": "Type",
+        "from": "Type",
+        "to": "Type"
+      },
+      {
+        "id": "HandleInsert",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "HandleUpdate",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "HandleDelete",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "PromiseResult",
+        "type": "Type"
+      },
+      {
+        "id": "promiseResultValueRelationTable",
+        "type": "Value",
+        "from": "PromiseResult",
+        "to": "Object"
+      },
+      {
+        "id": "PromiseReason",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "Focus",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "focusValue",
+        "type": "Value",
+        "from": "Focus",
+        "to": "Object"
+      },
+      {
+        "id": "AsyncFile",
+        "type": "File"
+      },
+      {
+        "id": "handlersTreeHandler",
+        "type": "TreeIncludeUp",
+        "from": "handlersTree",
+        "to": "Handler"
+      },
+      {
+        "id": "Query",
+        "type": "Type"
+      },
+      {
+        "id": "queryValue",
+        "type": "Value",
+        "from": "Query",
+        "to": "Object"
+      },
+      {
+        "id": "Active",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "Fixed",
+        "type": "Type"
+      },
+      {
+        "id": "fixedValue",
+        "type": "Value",
+        "from": "Fixed",
+        "to": "Object"
+      },
+      {
+        "id": "Space",
+        "type": "Type"
+      },
+      {
+        "id": "spaceValue",
+        "type": "Value",
+        "from": "Space",
+        "to": "String"
+      },
+      {
+        "id": "AllowLogin",
+        "type": "Operation"
+      },
+      {
+        "id": "guests",
+        "type": "Any"
+      },
+      {
+        "id": "Join",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "joinTree",
+        "type": "Tree"
+      },
+      {
+        "id": "joinTreeJoin",
+        "type": "TreeIncludeUp",
+        "from": "joinTree",
+        "to": "Join"
+      },
+      {
+        "id": "joinTreeAny",
+        "type": "TreeIncludeNode",
+        "from": "joinTree",
+        "to": "Any"
+      },
+      {
+        "id": "SelectorTree",
+        "type": "Type",
+        "from": "Any",
+        "to": "Tree"
+      },
+      {
+        "id": "AllowAdmin",
+        "type": "Operation"
+      },
+      {
+        "id": "SelectorExclude",
+        "type": "Type",
+        "from": "Selector",
+        "to": "Any"
+      },
+      {
+        "id": "SelectorFilter",
+        "type": "Type",
+        "from": "Selector",
+        "to": "Query"
+      },
+      {
+        "id": "HandleSchedule",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "Schedule",
+        "type": "Type"
+      },
+      {
+        "id": "scheduleValue",
+        "type": "Value",
+        "from": "Schedule",
+        "to": "String"
+      },
+      {
+        "id": "Router",
+        "type": "Type",
+        "value": {
+          "value": "Router"
+        }
+      },
+      {
+        "id": "IsolationProvider",
+        "type": "Type"
+      },
+      {
+        "id": "DockerIsolationProvider",
+        "type": "IsolationProvider"
+      },
+      {
+        "id": "dockerIsolationProviderValue",
+        "type": "Value",
+        "from": "DockerIsolationProvider",
+        "to": "String"
+      },
+      {
+        "id": "JSDockerIsolationProvider",
+        "type": "DockerIsolationProvider",
+        "value": {
+          "value": "deepf/js-docker-isolation-provider:main"
+        }
+      },
+      {
+        "id": "Supports",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "dockerSupportsJs",
+        "type": "Supports",
+        "from": "JSDockerIsolationProvider",
+        "to": "JSExecutionProvider"
+      },
+      {
+        "id": "PackageInstall",
+        "type": "Type",
+        "from": "Any",
+        "to": "PackageQuery"
+      },
+      {
+        "id": "PackagePublish",
+        "type": "Type",
+        "from": "Package",
+        "to": "PackageQuery"
+      },
+      {
+        "id": "packageInstallCode",
+        "type": "SyncTextFile",
+        "value": {
+          "value": "\nasync ({ deep, require, gql, data: { newLink } }) => {\n  const { data: [pq] } = await deep.select({ id: newLink.to_id });\n  const { data: { packager_install: imported }, error } = await deep.apolloClient.query({\n    query: gql`query PACKAGE_INSTALL($address: String!) {\n      packager_install(input: { address: $address }) {\n        ids\n        packageId\n        errors\n      }\n    }`,\n    variables: {\n      address: pq?.value?.value,\n    },\n  });\n  if (error) throw error;\n  if (imported?.errors?.length) throw imported.errors;\n  await deep.insert({\n    type_id: await deep.id('@deep-foundation/core', 'Contain'),\n    from_id: newLink.from_id,\n    to_id: imported.packageId,\n  });\n  return imported;\n}\n    "
+        }
+      },
+      {
+        "id": "packageInstallCodeHandler",
+        "type": "Handler",
+        "from": "dockerSupportsJs",
+        "to": "packageInstallCode"
+      },
+      {
+        "id": "packageInstallCodeHandleInsert",
+        "type": "HandleInsert",
+        "from": "PackageInstall",
+        "to": "packageInstallCodeHandler"
+      },
+      {
+        "id": "packagePublishCode",
+        "type": "SyncTextFile",
+        "value": {
+          "value": "\nasync ({ deep, require, gql, data: { newLink } }) => {\n  const { data: [pq] } = await deep.select({ id: newLink.to_id });\n  const { data: { packager_publish: exported }, error } = await deep.apolloClient.query({\n    query: gql`query PACKAGE_PUBLISH($address: String!, $id: Int) {\n      packager_publish(input: { address: $address, id: $id }) {\n        address\n        errors\n      }\n    }`,\n    variables: {\n      address: pq?.value?.value,\n      id: newLink.from_id,\n    },\n  });\n  if (error) throw error;\n  if (exported?.errors?.length) throw exported.errors;\n  return exported;\n}\n    "
+        }
+      },
+      {
+        "id": "packagePublishCodeHandler",
+        "type": "Handler",
+        "from": "dockerSupportsJs",
+        "to": "packagePublishCode"
+      },
+      {
+        "id": "packagePublishCodeHandleInsert",
+        "type": "HandleInsert",
+        "from": "PackagePublish",
+        "to": "packagePublishCodeHandler"
+      },
+      {
+        "id": "AllowPackageInstall",
+        "type": "Operation"
+      },
+      {
+        "id": "portValue",
+        "type": "Value",
+        "from": "Port",
+        "to": "Number"
+      },
+      {
+        "id": "HandlePort",
+        "type": "HandleOperation",
+        "from": "Port",
+        "to": "Any"
+      },
+      {
+        "id": "Route",
+        "type": "Type"
+      },
+      {
+        "id": "RouterListening",
+        "type": "Type",
+        "from": "Router",
+        "to": "Port"
+      },
+      {
+        "id": "RouterStringUse",
+        "type": "Type",
+        "from": "Route",
+        "to": "Router"
+      },
+      {
+        "id": "routerStringUseValue",
+        "type": "Value",
+        "from": "RouterStringUse",
+        "to": "String"
+      },
+      {
+        "id": "HandleRoute",
+        "type": "HandleOperation",
+        "from": "Route",
+        "to": "Handler"
+      },
+      {
+        "id": "routeTree",
+        "type": "Tree"
+      },
+      {
+        "id": "routeTreePort",
+        "type": "TreeIncludeNode",
+        "from": "routeTree",
+        "to": "Port"
+      },
+      {
+        "id": "routeTreeRouter",
+        "type": "TreeIncludeNode",
+        "from": "routeTree",
+        "to": "Router"
+      },
+      {
+        "id": "routeTreeRoute",
+        "type": "TreeIncludeNode",
+        "from": "routeTree",
+        "to": "Route"
+      },
+      {
+        "id": "routeTreeHandler",
+        "type": "TreeIncludeNode",
+        "from": "routeTree",
+        "to": "Handler"
+      },
+      {
+        "id": "routeTreeRouterListening",
+        "type": "TreeIncludeUp",
+        "from": "routeTree",
+        "to": "RouterListening"
+      },
+      {
+        "id": "routeTreeRouterStringUse",
+        "type": "TreeIncludeUp",
+        "from": "routeTree",
+        "to": "RouterStringUse"
+      },
+      {
+        "id": "routeTreeHandleRoute",
+        "type": "TreeIncludeDown",
+        "from": "routeTree",
+        "to": "HandleRoute"
+      },
+      {
+        "id": "TreeIncludeIn",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeOut",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeFromCurrent",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeToCurrent",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeCurrentFrom",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeCurrentTo",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeFromCurrentTo",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeToCurrentFrom",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "AllowInsertType",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowUpdateType",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowDeleteType",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowSelectType",
+        "type": "Operation"
+      },
+      {
+        "id": "ruleTree",
+        "type": "Tree"
+      },
+      {
+        "id": "ruleTreeRule",
+        "type": "TreeIncludeNode",
+        "from": "ruleTree",
+        "to": "Rule"
+      },
+      {
+        "id": "ruleTreeRuleAction",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "RuleAction"
+      },
+      {
+        "id": "ruleTreeRuleObject",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "RuleObject"
+      },
+      {
+        "id": "ruleTreeRuleSubject",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "RuleSubject"
+      },
+      {
+        "id": "ruleTreeRuleSelector",
+        "type": "TreeIncludeNode",
+        "from": "ruleTree",
+        "to": "Selector"
+      },
+      {
+        "id": "ruleTreeRuleQuery",
+        "type": "TreeIncludeNode",
+        "from": "ruleTree",
+        "to": "Query"
+      },
+      {
+        "id": "ruleTreeRuleSelectorInclude",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "SelectorInclude"
+      },
+      {
+        "id": "ruleTreeRuleSelectorExclude",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "SelectorExclude"
+      },
+      {
+        "id": "ruleTreeRuleSelectorFilter",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "SelectorFilter"
+      },
+      {
+        "id": "Plv8IsolationProvider",
+        "type": "IsolationProvider"
+      },
+      {
+        "id": "JSminiExecutionProvider",
+        "type": "ExecutionProvider"
+      },
+      {
+        "id": "plv8SupportsJs",
+        "type": "Supports",
+        "from": "Plv8IsolationProvider",
+        "to": "JSminiExecutionProvider"
+      },
+      {
+        "id": "Authorization",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "GeneratedFrom",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "ClientJSIsolationProvider",
+        "type": "IsolationProvider"
+      },
+      {
+        "id": "symbolValue",
+        "type": "Value",
+        "from": "Symbol",
+        "to": "String"
+      },
+      {
+        "id": "containTreeSymbol",
+        "type": "TreeIncludeToCurrent",
+        "from": "containTree",
+        "to": "Symbol"
+      },
+      {
+        "id": "containTreeThen",
+        "type": "TreeIncludeFromCurrentTo",
+        "from": "containTree",
+        "to": "Then"
+      },
+      {
+        "id": "containTreeRejected",
+        "type": "TreeIncludeFromCurrentTo",
+        "from": "containTree",
+        "to": "Rejected"
+      },
+      {
+        "id": "handlersTree",
+        "type": "Tree"
+      },
+      {
+        "id": "AllowPackagePublish",
+        "type": "Operation"
+      },
+      {
+        "id": "HandlingErrorLink",
+        "type": "Type",
+        "from": "HandlingError",
+        "to": "Any"
+      },
+      {
+        "id": "PromiseOut",
+        "type": "Type",
+        "from": "Promise",
+        "to": "Any"
+      },
+      {
+        "id": "promiseOutValue",
+        "type": "Value",
+        "from": "PromiseOut",
+        "to": "String"
+      },
+      {
+        "id": "PackageQuery",
+        "type": "Type"
+      },
+      {
+        "id": "packageQueryValue",
+        "type": "Value",
+        "from": "PackageQuery",
+        "to": "String"
+      },
+      {
+        "id": "Port",
+        "type": "Type",
+        "value": {
+          "value": "Port"
+        }
+      },
+      {
+        "id": "PackageInstalled",
+        "type": "Type",
+        "from": "Package",
+        "to": "PackageQuery"
+      },
+      {
+        "id": "PackagePublished",
+        "type": "Type",
+        "from": "Package",
+        "to": "PackageQuery"
+      },
+      {
+        "id": "clientSupportsJs",
+        "type": "Supports",
+        "from": "ClientJSIsolationProvider",
+        "to": "JSExecutionProvider"
+      },
+      {
+        "id": "Symbol",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "handlersTreeSupports",
+        "type": "TreeIncludeOut",
+        "from": "handlersTree",
+        "to": "Supports"
+      },
+      {
+        "id": "handlersTreeHandleOperation",
+        "type": "TreeIncludeUp",
+        "from": "handlersTree",
+        "to": "HandleOperation"
+      },
+      {
+        "id": "HandleClient",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "HandlingError",
+        "type": "Type"
+      },
+      {
+        "id": "handlingErrorValue",
+        "type": "Value",
+        "from": "HandlingError",
+        "to": "Object"
+      },
+      {
+        "id": "containTreeResolved",
+        "type": "TreeIncludeFromCurrentTo",
+        "from": "containTree",
+        "to": "Resolved"
+      },
+      {
+        "id": "HandlingErrorReason",
+        "type": "Type",
+        "from": "HandlingError",
+        "to": "Any"
+      },
+      {
+        "id": "GqlEndpoint",
+        "type": "Type"
+      },
+      {
+        "id": "MainGqlEndpoint",
+        "type": "GqlEndpoint"
+      },
+      {
+        "id": "HandleGql",
+        "type": "Type",
+        "from": "GqlEndpoint",
+        "to": "HandleRoute"
+      },
+      {
+        "id": "SupportsCompatable",
+        "type": "Type",
+        "from": "Supports",
+        "to": "HandleOperation"
+      },
+      {
+        "id": "plv8JSSupportsCompatableHandleInsert",
+        "type": "SupportsCompatable",
+        "from": "plv8SupportsJs",
+        "to": "HandleInsert"
+      },
+      {
+        "id": "plv8JSSupportsCompatableHandleUpdate",
+        "type": "SupportsCompatable",
+        "from": "plv8SupportsJs",
+        "to": "HandleUpdate"
+      },
+      {
+        "id": "plv8JSSupportsCompatableHandleDelete",
+        "type": "SupportsCompatable",
+        "from": "plv8SupportsJs",
+        "to": "HandleDelete"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleInsert",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleInsert"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleUpdate",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleUpdate"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleDelete",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleDelete"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleSchedule",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleSchedule"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandlePort",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandlePort"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleRoute",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleRoute"
+      },
+      {
+        "id": "clientJSSupportsCompatableHandleClient",
+        "type": "SupportsCompatable",
+        "from": "clientSupportsJs",
+        "to": "HandleClient"
+      }
+    ],
+    "errors": [],
+    "strict": true,
+    "dependencies": []
+  }

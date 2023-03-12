@@ -1,0 +1,959 @@
+{
+    "package": {
+      "name": "@deep-foundation/core",
+      "version": "0.0.1"
+    },
+    "data": [
+      {
+        "id": "Type",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "GqlEndpoint",
+        "type": "Type"
+      },
+      {
+        "id": "MainGqlEndpoint",
+        "type": "GqlEndpoint"
+      },
+      {
+        "id": "HandlingError",
+        "type": "Type"
+      },
+      {
+        "id": "Route",
+        "type": "Type"
+      },
+      {
+        "id": "Port",
+        "type": "Type",
+        "value": {
+          "value": "Port"
+        }
+      },
+      {
+        "id": "PackageQuery",
+        "type": "Type"
+      },
+      {
+        "id": "IsolationProvider",
+        "type": "Type"
+      },
+      {
+        "id": "ClientJSIsolationProvider",
+        "type": "IsolationProvider"
+      },
+      {
+        "id": "Plv8IsolationProvider",
+        "type": "IsolationProvider"
+      },
+      {
+        "id": "DockerIsolationProvider",
+        "type": "IsolationProvider"
+      },
+      {
+        "id": "JSDockerIsolationProvider",
+        "type": "DockerIsolationProvider",
+        "value": {
+          "value": "deepf/js-docker-isolation-provider:main"
+        }
+      },
+      {
+        "id": "Router",
+        "type": "Type",
+        "value": {
+          "value": "Router"
+        }
+      },
+      {
+        "id": "RouterStringUse",
+        "type": "Type",
+        "from": "Route",
+        "to": "Router"
+      },
+      {
+        "id": "RouterListening",
+        "type": "Type",
+        "from": "Router",
+        "to": "Port"
+      },
+      {
+        "id": "Schedule",
+        "type": "Type"
+      },
+      {
+        "id": "Space",
+        "type": "Type"
+      },
+      {
+        "id": "Fixed",
+        "type": "Type"
+      },
+      {
+        "id": "Query",
+        "type": "Type"
+      },
+      {
+        "id": "PromiseResult",
+        "type": "Type"
+      },
+      {
+        "id": "HandleOperation",
+        "type": "Type",
+        "from": "Type",
+        "to": "Type"
+      },
+      {
+        "id": "PackageNamespace",
+        "type": "Type"
+      },
+      {
+        "id": "Tree",
+        "type": "Type"
+      },
+      {
+        "id": "handlersTree",
+        "type": "Tree"
+      },
+      {
+        "id": "ruleTree",
+        "type": "Tree"
+      },
+      {
+        "id": "routeTree",
+        "type": "Tree"
+      },
+      {
+        "id": "joinTree",
+        "type": "Tree"
+      },
+      {
+        "id": "containTree",
+        "type": "Tree"
+      },
+      {
+        "id": "ExecutionProvider",
+        "type": "Type"
+      },
+      {
+        "id": "JSminiExecutionProvider",
+        "type": "ExecutionProvider"
+      },
+      {
+        "id": "JSExecutionProvider",
+        "type": "ExecutionProvider"
+      },
+      {
+        "id": "File",
+        "type": "Type"
+      },
+      {
+        "id": "AsyncFile",
+        "type": "File"
+      },
+      {
+        "id": "SyncTextFile",
+        "type": "File"
+      },
+      {
+        "id": "packagePublishCode",
+        "type": "SyncTextFile",
+        "value": {
+          "value": "\nasync ({ deep, require, gql, data: { newLink } }) => {\n  const { data: [pq] } = await deep.select({ id: newLink.to_id });\n  const { data: { packager_publish: exported }, error } = await deep.apolloClient.query({\n    query: gql`query PACKAGE_PUBLISH($address: String!, $id: Int) {\n      packager_publish(input: { address: $address, id: $id }) {\n        address\n        errors\n      }\n    }`,\n    variables: {\n      address: pq?.value?.value,\n      id: newLink.from_id,\n    },\n  });\n  if (error) throw error;\n  if (exported?.errors?.length) throw exported.errors;\n  return exported;\n}\n    "
+        }
+      },
+      {
+        "id": "packageInstallCode",
+        "type": "SyncTextFile",
+        "value": {
+          "value": "\nasync ({ deep, require, gql, data: { newLink } }) => {\n  const { data: [pq] } = await deep.select({ id: newLink.to_id });\n  const { data: { packager_install: imported }, error } = await deep.apolloClient.query({\n    query: gql`query PACKAGE_INSTALL($address: String!) {\n      packager_install(input: { address: $address }) {\n        ids\n        packageId\n        errors\n      }\n    }`,\n    variables: {\n      address: pq?.value?.value,\n    },\n  });\n  if (error) throw error;\n  if (imported?.errors?.length) throw imported.errors;\n  await deep.insert({\n    type_id: await deep.id('@deep-foundation/core', 'Contain'),\n    from_id: newLink.from_id,\n    to_id: imported.packageId,\n  });\n  return imported;\n}\n    "
+        }
+      },
+      {
+        "id": "Operation",
+        "type": "Type"
+      },
+      {
+        "id": "AllowSelectType",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowDeleteType",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowUpdateType",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowInsertType",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowPackagePublish",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowPackageInstall",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowAdmin",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowLogin",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowSelect",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowDelete",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowUpdate",
+        "type": "Operation"
+      },
+      {
+        "id": "AllowInsert",
+        "type": "Operation"
+      },
+      {
+        "id": "User",
+        "type": "Type"
+      },
+      {
+        "id": "Rule",
+        "type": "Type"
+      },
+      {
+        "id": "Selector",
+        "type": "Type"
+      },
+      {
+        "id": "SelectorFilter",
+        "type": "Type",
+        "from": "Selector",
+        "to": "Query"
+      },
+      {
+        "id": "RuleAction",
+        "type": "Type",
+        "from": "Rule",
+        "to": "Selector"
+      },
+      {
+        "id": "RuleObject",
+        "type": "Type",
+        "from": "Rule",
+        "to": "Selector"
+      },
+      {
+        "id": "RuleSubject",
+        "type": "Type",
+        "from": "Rule",
+        "to": "Selector"
+      },
+      {
+        "id": "Promise",
+        "type": "Type"
+      },
+      {
+        "id": "Any",
+        "type": "Type"
+      },
+      {
+        "id": "HandlingErrorLink",
+        "type": "Type",
+        "from": "HandlingError",
+        "to": "Any"
+      },
+      {
+        "id": "HandlingErrorReason",
+        "type": "Type",
+        "from": "HandlingError",
+        "to": "Any"
+      },
+      {
+        "id": "Symbol",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "GeneratedFrom",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "Authorization",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "HandlePort",
+        "type": "HandleOperation",
+        "from": "Port",
+        "to": "Any"
+      },
+      {
+        "id": "PromiseOut",
+        "type": "Type",
+        "from": "Promise",
+        "to": "Any"
+      },
+      {
+        "id": "Active",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "PackageInstall",
+        "type": "Type",
+        "from": "Any",
+        "to": "PackageQuery"
+      },
+      {
+        "id": "Supports",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "SupportsCompatable",
+        "type": "Type",
+        "from": "Supports",
+        "to": "HandleOperation"
+      },
+      {
+        "id": "clientSupportsJs",
+        "type": "Supports",
+        "from": "ClientJSIsolationProvider",
+        "to": "JSExecutionProvider"
+      },
+      {
+        "id": "plv8SupportsJs",
+        "type": "Supports",
+        "from": "Plv8IsolationProvider",
+        "to": "JSminiExecutionProvider"
+      },
+      {
+        "id": "dockerSupportsJs",
+        "type": "Supports",
+        "from": "JSDockerIsolationProvider",
+        "to": "JSExecutionProvider"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandlePort",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandlePort"
+      },
+      {
+        "id": "SelectorExclude",
+        "type": "Type",
+        "from": "Selector",
+        "to": "Any"
+      },
+      {
+        "id": "SelectorTree",
+        "type": "Type",
+        "from": "Any",
+        "to": "Tree"
+      },
+      {
+        "id": "Join",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "guests",
+        "type": "Any"
+      },
+      {
+        "id": "Focus",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "PromiseReason",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "Handler",
+        "type": "Type",
+        "from": "Supports",
+        "to": "Any"
+      },
+      {
+        "id": "HandleClient",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "clientJSSupportsCompatableHandleClient",
+        "type": "SupportsCompatable",
+        "from": "clientSupportsJs",
+        "to": "HandleClient"
+      },
+      {
+        "id": "HandleRoute",
+        "type": "HandleOperation",
+        "from": "Route",
+        "to": "Handler"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleRoute",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleRoute"
+      },
+      {
+        "id": "HandleGql",
+        "type": "Type",
+        "from": "GqlEndpoint",
+        "to": "HandleRoute"
+      },
+      {
+        "id": "packagePublishCodeHandler",
+        "type": "Handler",
+        "from": "dockerSupportsJs",
+        "to": "packagePublishCode"
+      },
+      {
+        "id": "packageInstallCodeHandler",
+        "type": "Handler",
+        "from": "dockerSupportsJs",
+        "to": "packageInstallCode"
+      },
+      {
+        "id": "HandleSchedule",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleSchedule",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleSchedule"
+      },
+      {
+        "id": "HandleDelete",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleDelete",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleDelete"
+      },
+      {
+        "id": "plv8JSSupportsCompatableHandleDelete",
+        "type": "SupportsCompatable",
+        "from": "plv8SupportsJs",
+        "to": "HandleDelete"
+      },
+      {
+        "id": "HandleUpdate",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleUpdate",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleUpdate"
+      },
+      {
+        "id": "plv8JSSupportsCompatableHandleUpdate",
+        "type": "SupportsCompatable",
+        "from": "plv8SupportsJs",
+        "to": "HandleUpdate"
+      },
+      {
+        "id": "HandleInsert",
+        "type": "HandleOperation",
+        "from": "Any",
+        "to": "Handler"
+      },
+      {
+        "id": "dockerJSSupportsCompatableHandleInsert",
+        "type": "SupportsCompatable",
+        "from": "dockerSupportsJs",
+        "to": "HandleInsert"
+      },
+      {
+        "id": "plv8JSSupportsCompatableHandleInsert",
+        "type": "SupportsCompatable",
+        "from": "plv8SupportsJs",
+        "to": "HandleInsert"
+      },
+      {
+        "id": "packageInstallCodeHandleInsert",
+        "type": "HandleInsert",
+        "from": "PackageInstall",
+        "to": "packageInstallCodeHandler"
+      },
+      {
+        "id": "TreeInclude",
+        "type": "Type",
+        "from": "Type",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeToCurrentFrom",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeFromCurrentTo",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeCurrentTo",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeCurrentFrom",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeToCurrent",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "containTreeSymbol",
+        "type": "TreeIncludeToCurrent",
+        "from": "containTree",
+        "to": "Symbol"
+      },
+      {
+        "id": "TreeIncludeFromCurrent",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeOut",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "handlersTreeSupports",
+        "type": "TreeIncludeOut",
+        "from": "handlersTree",
+        "to": "Supports"
+      },
+      {
+        "id": "TreeIncludeIn",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeNode",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "ruleTreeRuleQuery",
+        "type": "TreeIncludeNode",
+        "from": "ruleTree",
+        "to": "Query"
+      },
+      {
+        "id": "ruleTreeRuleSelector",
+        "type": "TreeIncludeNode",
+        "from": "ruleTree",
+        "to": "Selector"
+      },
+      {
+        "id": "ruleTreeRule",
+        "type": "TreeIncludeNode",
+        "from": "ruleTree",
+        "to": "Rule"
+      },
+      {
+        "id": "routeTreeHandler",
+        "type": "TreeIncludeNode",
+        "from": "routeTree",
+        "to": "Handler"
+      },
+      {
+        "id": "routeTreeRoute",
+        "type": "TreeIncludeNode",
+        "from": "routeTree",
+        "to": "Route"
+      },
+      {
+        "id": "routeTreeRouter",
+        "type": "TreeIncludeNode",
+        "from": "routeTree",
+        "to": "Router"
+      },
+      {
+        "id": "routeTreePort",
+        "type": "TreeIncludeNode",
+        "from": "routeTree",
+        "to": "Port"
+      },
+      {
+        "id": "joinTreeAny",
+        "type": "TreeIncludeNode",
+        "from": "joinTree",
+        "to": "Any"
+      },
+      {
+        "id": "containTreeAny",
+        "type": "TreeIncludeNode",
+        "from": "containTree",
+        "to": "Any"
+      },
+      {
+        "id": "TreeIncludeUp",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "handlersTreeHandleOperation",
+        "type": "TreeIncludeUp",
+        "from": "handlersTree",
+        "to": "HandleOperation"
+      },
+      {
+        "id": "handlersTreeHandler",
+        "type": "TreeIncludeUp",
+        "from": "handlersTree",
+        "to": "Handler"
+      },
+      {
+        "id": "routeTreeRouterStringUse",
+        "type": "TreeIncludeUp",
+        "from": "routeTree",
+        "to": "RouterStringUse"
+      },
+      {
+        "id": "routeTreeRouterListening",
+        "type": "TreeIncludeUp",
+        "from": "routeTree",
+        "to": "RouterListening"
+      },
+      {
+        "id": "joinTreeJoin",
+        "type": "TreeIncludeUp",
+        "from": "joinTree",
+        "to": "Join"
+      },
+      {
+        "id": "TreeIncludeDown",
+        "type": "TreeInclude",
+        "from": "Tree",
+        "to": "Any"
+      },
+      {
+        "id": "ruleTreeRuleSelectorFilter",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "SelectorFilter"
+      },
+      {
+        "id": "ruleTreeRuleSelectorExclude",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "SelectorExclude"
+      },
+      {
+        "id": "ruleTreeRuleSubject",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "RuleSubject"
+      },
+      {
+        "id": "ruleTreeRuleObject",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "RuleObject"
+      },
+      {
+        "id": "ruleTreeRuleAction",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "RuleAction"
+      },
+      {
+        "id": "routeTreeHandleRoute",
+        "type": "TreeIncludeDown",
+        "from": "routeTree",
+        "to": "HandleRoute"
+      },
+      {
+        "id": "SelectorInclude",
+        "type": "Type",
+        "from": "Selector",
+        "to": "Any"
+      },
+      {
+        "id": "ruleTreeRuleSelectorInclude",
+        "type": "TreeIncludeDown",
+        "from": "ruleTree",
+        "to": "SelectorInclude"
+      },
+      {
+        "id": "Rejected",
+        "type": "Type",
+        "from": "Promise",
+        "to": "Any"
+      },
+      {
+        "id": "containTreeRejected",
+        "type": "TreeIncludeFromCurrentTo",
+        "from": "containTree",
+        "to": "Rejected"
+      },
+      {
+        "id": "Resolved",
+        "type": "Type",
+        "from": "Promise",
+        "to": "Any"
+      },
+      {
+        "id": "containTreeResolved",
+        "type": "TreeIncludeFromCurrentTo",
+        "from": "containTree",
+        "to": "Resolved"
+      },
+      {
+        "id": "Then",
+        "type": "Type",
+        "from": "Any",
+        "to": "Promise"
+      },
+      {
+        "id": "containTreeThen",
+        "type": "TreeIncludeFromCurrentTo",
+        "from": "containTree",
+        "to": "Then"
+      },
+      {
+        "id": "Object",
+        "type": "Type"
+      },
+      {
+        "id": "Number",
+        "type": "Type"
+      },
+      {
+        "id": "String",
+        "type": "Type"
+      },
+      {
+        "id": "Value",
+        "type": "Type",
+        "from": "Any",
+        "to": "Type"
+      },
+      {
+        "id": "handlingErrorValue",
+        "type": "Value",
+        "from": "HandlingError",
+        "to": "Object"
+      },
+      {
+        "id": "symbolValue",
+        "type": "Value",
+        "from": "Symbol",
+        "to": "String"
+      },
+      {
+        "id": "routerStringUseValue",
+        "type": "Value",
+        "from": "RouterStringUse",
+        "to": "String"
+      },
+      {
+        "id": "portValue",
+        "type": "Value",
+        "from": "Port",
+        "to": "Number"
+      },
+      {
+        "id": "packageQueryValue",
+        "type": "Value",
+        "from": "PackageQuery",
+        "to": "String"
+      },
+      {
+        "id": "promiseOutValue",
+        "type": "Value",
+        "from": "PromiseOut",
+        "to": "String"
+      },
+      {
+        "id": "dockerIsolationProviderValue",
+        "type": "Value",
+        "from": "DockerIsolationProvider",
+        "to": "String"
+      },
+      {
+        "id": "scheduleValue",
+        "type": "Value",
+        "from": "Schedule",
+        "to": "String"
+      },
+      {
+        "id": "spaceValue",
+        "type": "Value",
+        "from": "Space",
+        "to": "String"
+      },
+      {
+        "id": "fixedValue",
+        "type": "Value",
+        "from": "Fixed",
+        "to": "Object"
+      },
+      {
+        "id": "queryValue",
+        "type": "Value",
+        "from": "Query",
+        "to": "Object"
+      },
+      {
+        "id": "focusValue",
+        "type": "Value",
+        "from": "Focus",
+        "to": "Object"
+      },
+      {
+        "id": "promiseResultValueRelationTable",
+        "type": "Value",
+        "from": "PromiseResult",
+        "to": "Object"
+      },
+      {
+        "id": "packageNamespaceValue",
+        "type": "Value",
+        "from": "PackageNamespace",
+        "to": "String"
+      },
+      {
+        "id": "syncTextFileValue",
+        "type": "Value",
+        "from": "SyncTextFile",
+        "to": "String"
+      },
+      {
+        "id": "operationValue",
+        "type": "Value",
+        "from": "Operation",
+        "to": "String"
+      },
+      {
+        "id": "typeValue",
+        "type": "Value",
+        "from": "Type",
+        "to": "String"
+      },
+      {
+        "id": "Contain",
+        "type": "Type",
+        "from": "Any",
+        "to": "Any"
+      },
+      {
+        "id": "containTreeContain",
+        "type": "TreeIncludeDown",
+        "from": "containTree",
+        "to": "Contain"
+      },
+      {
+        "id": "containValue",
+        "type": "Value",
+        "from": "Contain",
+        "to": "String"
+      },
+      {
+        "id": "Package",
+        "type": "Type"
+      },
+      {
+        "id": "PackagePublished",
+        "type": "Type",
+        "from": "Package",
+        "to": "PackageQuery"
+      },
+      {
+        "id": "PackageInstalled",
+        "type": "Type",
+        "from": "Package",
+        "to": "PackageQuery"
+      },
+      {
+        "id": "PackagePublish",
+        "type": "Type",
+        "from": "Package",
+        "to": "PackageQuery"
+      },
+      {
+        "id": "packagePublishCodeHandleInsert",
+        "type": "HandleInsert",
+        "from": "PackagePublish",
+        "to": "packagePublishCodeHandler"
+      },
+      {
+        "id": "PackageVersion",
+        "type": "Type",
+        "from": "PackageNamespace",
+        "to": "Package"
+      },
+      {
+        "id": "packageVersionValue",
+        "type": "Value",
+        "from": "PackageVersion",
+        "to": "String"
+      },
+      {
+        "id": "PackageActive",
+        "type": "Type",
+        "from": "PackageNamespace",
+        "to": "Package"
+      },
+      {
+        "id": "packageValue",
+        "type": "Value",
+        "from": "Package",
+        "to": "String"
+      }
+    ],
+    "errors": [],
+    "dependencies": []
+  }
