@@ -6,6 +6,8 @@ name: Main CI & CD workflow
 on:
   push:
     branches: main
+    paths:
+     - package.json
 
 jobs:
   build:
