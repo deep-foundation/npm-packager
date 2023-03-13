@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/npm-packager",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "license": "Unlicense",
   "scripts": {
     "build": "npx ts-node build.ts",
