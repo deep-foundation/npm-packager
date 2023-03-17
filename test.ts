@@ -36,7 +36,7 @@ describe('packager tests', () => {
     const getPackageVersions = async (packageName) => {
       const { data: data } = await deep.apolloClient.query({
         query: gql`query GetPackageVersionsByName($packageTypeId: bigint, $packageVersionTypeId: bigint, $packageName: String) {
-          package: links(where: {type_id: {_eq: $packageTypeId}, string: { value: {_eq: $packageName }}}) {
+          packages: links(where: {type_id: {_eq: $packageTypeId}, string: { value: {_eq: $packageName }}}) {
             id
             name: value
             versions: in(where: {type_id: {_eq: $packageVersionTypeId}, string: {value: {_is_null: false}}}) {
@@ -52,14 +52,19 @@ describe('packager tests', () => {
         },
       });
       
-      return data;
+      return data.packages.map(pkg => {
+        return {
+          id: pkg?.id,
+          name: pkg?.name?.value,
+          version: pkg?.versions?.[0]?.version?.value
+        }
+      });
     };
   
-    const data = await getPackageVersions("@deep-foundation/core");
-    const versions = data.package[0].versions;
-    console.log(versions);
-    expect(versions.length).toBe(1);
-    const firstVersion = versions[0];
-    expect(firstVersion.version.value).toBe("0.0.0");
+    const packages = await getPackageVersions("@deep-foundation/core");
+    console.log(packages);
+    expect(packages.length).toBe(1);
+    const firstPackage = packages[0];
+    expect(firstPackage.version).toBe("0.0.0");
   }); 
 });
