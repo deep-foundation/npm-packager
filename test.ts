@@ -87,6 +87,13 @@ const combinedPackagesSearch = async (query) => {
   };
 };
 
+const getPackageFromNpm = async (packageName) => {
+  const url = `https://registry.npmjs.com/${packageName}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+};
+
 describe('packager tests', () => {
   it('npm packages search', async () => {
     const query1 = '123456789';
@@ -123,5 +130,12 @@ describe('packager tests', () => {
     expect(packages2.notInstalledPackages.length).toBe(3);
     const localPackage2 = packages2.installedPackages[0].localPackage;
     expect(localPackage2.versions[0].version).toBe("0.0.7");
+  });
+
+  it('npm package', async () => {
+    const packageName = '@deep-foundation/pow';
+    const data = await getPackageFromNpm(packageName) as any;
+    console.log(JSON.stringify(data, null, 2));
+    expect(data.versions["0.0.0"].version).toBe("0.0.0");
   });
 });
