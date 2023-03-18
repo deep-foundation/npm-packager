@@ -137,6 +137,8 @@ describe('packager tests', () => {
     const data = await getPackageFromNpm(packageName) as any;
     console.log(JSON.stringify(data, null, 2));
     const versions = Object.keys(data.versions);
+    versions.sort();
+    console.log(versions);
     expect(versions[0]).toBe("0.0.0");
   });
 });
