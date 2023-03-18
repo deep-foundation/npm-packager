@@ -136,6 +136,7 @@ describe('packager tests', () => {
     const packageName = '@deep-foundation/pow';
     const data = await getPackageFromNpm(packageName) as any;
     console.log(JSON.stringify(data, null, 2));
-    expect(data.versions["0.0.0"].version).toBe("0.0.0");
+    const versions = Object.keys(data.versions);
+    expect(versions[0]).toBe("0.0.0");
   });
 });
