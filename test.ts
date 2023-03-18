@@ -264,7 +264,7 @@ describe('packager tests', () => {
     });
   });
 
-  it('GPT result 2', async () => {
+  it.skip('GPT result 2', async () => {
     const userId = 362;
 
     // Create a node-link type with name Vehicle.

@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/npm-packager",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "license": "Unlicense",
   "keywords": [
     "deep-package"
@@ -11,7 +11,7 @@
     "test-install": "npx ts-node test-install.ts",
     "test-publish": "npx ts-node test-publish.ts",
     "test-deep": "npx ts-node test-deep.ts",
-    "publish-next-version": "npm run build; export CURRENT_VERSION=$(npx ts-node set-next-version.ts); git add .; git commit -m $CURRENT_VERSION; git push",
+    "publish-next-version": "npm run build; npm run test; export CURRENT_VERSION=$(npx ts-node set-next-version.ts); git add .; git commit -m $CURRENT_VERSION; git push",
     "test": "jest"
   },
   "dependencies": {
