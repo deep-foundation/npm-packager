@@ -146,7 +146,7 @@ describe('packager tests', () => {
     expect(deep.linkId).toBe(362);
   });
 
-  it('GPT test', async () => {
+  it.skip('GPT prompt', async () => {
     const userId = 362;
 
     // Create a node-link type with name Example1.
@@ -246,5 +246,57 @@ describe('packager tests', () => {
       }
     });
 
+  });
+
+  it.skip('GPT result 1', async () => {
+    const userId = 362;
+
+    // Create Vehicle type.
+    await deep.insert({
+      type_id: await deep.id('@deep-foundation/core', 'Type'),
+      in: {
+        data: {
+          from_id: userId,
+          type_id: await deep.id('@deep-foundation/core', 'Contain'),
+          string: { data: { value: 'Vehicle' } },
+        }
+      },
+    });
+  });
+
+  it('GPT result 2', async () => {
+    const userId = 362;
+
+    // Create a node-link type with name Vehicle.
+    // It has attached properties such as NumberOfWheels (Number type).
+    await deep.insert({
+      type_id: await deep.id('@deep-foundation/core', 'Type'),
+      in: {
+        data: [
+          {
+            from_id: userId,
+            type_id: await deep.id('@deep-foundation/core', 'Contain'),
+            string: { data: { value: 'Vehicle' } },
+          },
+          {
+            from_id: await deep.id('@deep-foundation/core', 'Any'),
+            type_id: await deep.id('@deep-foundation/core', 'Type'),
+            in: {
+              data: {
+                from_id: userId,
+                type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                string: { data: { value: 'NumberOfWheels' } },
+              }
+            },
+            out: {
+              data: {
+                type_id: await deep.id('@deep-foundation/core', 'Value'),
+                to_id: await deep.id('@deep-foundation/core', 'Number'),
+              }
+            }
+          },
+        ]
+      }
+    });
   });
 });
