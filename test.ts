@@ -67,7 +67,7 @@ const getPackagesVersions = async (packagesNames) => {
   })
 };
 
-const combinedSearch = async (query) => {
+const combinedPackagesSearch = async (query) => {
   const remotePackages = await searchPackages(query);
   const packagesNames = remotePackages.objects.map(rp => rp.package.name);
   const localPackages = await await getPackagesVersions(packagesNames);
@@ -75,12 +75,16 @@ const combinedSearch = async (query) => {
   for (const localPackage of localPackages) {
     localPackagesHash[localPackage.name] = localPackage;
   }
-  return remotePackages.objects.map(rp => {
+  const packages = remotePackages.objects.map(rp => {
     return {
       remotePackage: rp.package,
       localPackage: localPackagesHash[rp.package.name],
     }
   });
+  return {
+    installedPackages: packages.filter(p => !!p.localPackage),
+    notInstalledPackages: packages.filter(p => !p.localPackage)
+  };
 };
 
 describe('packager tests', () => {
@@ -107,16 +111,17 @@ describe('packager tests', () => {
   });
 
   it('combined packages search', async () => {
-    const packages1 = await combinedSearch("@deep-foundation/pow");
+    const packages1 = await combinedPackagesSearch("@deep-foundation/pow");
     console.log(JSON.stringify(packages1, null, 2));
-    expect(packages1.length).toBe(1);
-    const localPackage1 = packages1[0].localPackage;
+    expect(packages1.installedPackages.length).toBe(1);
+    const localPackage1 = packages1.installedPackages[0].localPackage;
     expect(localPackage1.versions[0].version).toBe("0.0.7");
 
-    const packages2 = await combinedSearch("");
+    const packages2 = await combinedPackagesSearch("");
     console.log(JSON.stringify(packages2, null, 2));
-    expect(packages2.length).toBe(4);
-    const localPackage2 = packages2[0].localPackage;
+    expect(packages2.installedPackages.length).toBe(1);
+    expect(packages2.notInstalledPackages.length).toBe(3);
+    const localPackage2 = packages2.installedPackages[0].localPackage;
     expect(localPackage2.versions[0].version).toBe("0.0.7");
   });
 });
