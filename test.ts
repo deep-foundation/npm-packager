@@ -67,6 +67,22 @@ const getPackagesVersions = async (packagesNames) => {
   })
 };
 
+const combinedSearch = async (query) => {
+  const remotePackages = await searchPackages(query);
+  const packagesNames = remotePackages.objects.map(rp => rp.package.name);
+  const localPackages = await await getPackagesVersions(packagesNames);
+  const localPackagesHash = {};
+  for (const localPackage of localPackages) {
+    localPackagesHash[localPackage.name] = localPackage;
+  }
+  return remotePackages.objects.map(rp => {
+    return {
+      remotePackage: rp.package,
+      localPackage: localPackagesHash[rp.package.name],
+    }
+  });
+};
+
 describe('packager tests', () => {
   it('npm packages search', async () => {
     const query1 = '123456789';
@@ -91,26 +107,16 @@ describe('packager tests', () => {
   });
 
   it('combined packages search', async () => {
-    const combinedSearch = async (query) => {
-      const remotePackages = await searchPackages(query);
-      const packagesNames = remotePackages.objects.map(rp => rp.package.name);
-      const localPackages = await await getPackagesVersions(packagesNames);
-      const localPackagesHash = {};
-      for (const localPackage of localPackages) {
-        localPackagesHash[localPackage.name] = localPackage;
-      }
-      return remotePackages.objects.map(rp => {
-        return {
-          remotePackage: rp.package,
-          localPackage: localPackagesHash[rp.package.name],
-        }
-      });
-    };
+    const packages1 = await combinedSearch("@deep-foundation/pow");
+    console.log(JSON.stringify(packages1, null, 2));
+    expect(packages1.length).toBe(1);
+    const localPackage1 = packages1[0].localPackage;
+    expect(localPackage1.versions[0].version).toBe("0.0.7");
 
-    const namespaces = await combinedSearch("@deep-foundation/pow");
-    console.log(JSON.stringify(namespaces, null, 2));
-    expect(namespaces.length).toBe(1);
-    const firstNamespace = namespaces[0].localPackage;
-    expect(firstNamespace.versions[0].version).toBe("0.0.7");
+    const packages2 = await combinedSearch("");
+    console.log(JSON.stringify(packages2, null, 2));
+    expect(packages2.length).toBe(4);
+    const localPackage2 = packages2[0].localPackage;
+    expect(localPackage2.versions[0].version).toBe("0.0.7");
   });
 });
