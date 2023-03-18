@@ -5,17 +5,70 @@ import { DeepClient } from '@deep-foundation/deeplinks/imports/client';
 import config from './config.json';
 import { gql } from "@apollo/client";
 
+const apollo = generateApolloClient(config.endpoint);
+const deep = new DeepClient({ apolloClient: apollo });
+
+const searchPackages = async (query) => {
+  const deepPackageKeyword = 'deep-package';
+  const textParameter = encodeURIComponent(`${query} keywords:${deepPackageKeyword}`);
+  const url = `https://registry.npmjs.com/-/v1/search?text=${textParameter}`;
+  const response = await fetch(url);
+  const data = await response.json();
+  return data;
+};
+
+const getPackagesVersions = async (packagesNames) => {
+  const { data: data } = await deep.apolloClient.query({
+    query: gql`query GetPackagesVersionsByName($packageVersionTypeId: bigint, $packageNamespaceTypeId: bigint, $packageActiveTypeId: bigint, $packagesNames: [String]) {
+      namespaces: links(where: {type_id: {_eq: $packageNamespaceTypeId}, string: { value: {_in: $packagesNames }}}) {
+        id
+        name: value
+        versions: out(where: {type_id: {_eq: $packageVersionTypeId}, string: {value: {_is_null: false}}}) {
+          id
+          version: value
+          packageId: to_id
+        }
+        active: out(where: {type_id: {_eq: $packageVersionTypeId}, string: {value: {_is_null: false}}}) {
+          id
+          version: value
+          packageId: to_id
+        }
+      }
+    }`,
+    variables: {
+      "packageVersionTypeId": await deep.id('@deep-foundation/core', 'PackageVersion'),
+      "packageNamespaceTypeId": await deep.id('@deep-foundation/core', 'PackageNamespace'),
+      "packageActiveTypeId": await deep.id('@deep-foundation/core', 'PackageNamespace'),
+      "packagesNames": packagesNames
+    },
+  });
+
+  console.log(JSON.stringify(data, null, 2));
+  
+  return data.namespaces.map(namespace => {
+    const activeVersion = namespace.active.map(version => {
+      return {
+        packageId: version?.packageId,
+        version: version?.version?.value
+      }
+    })[0];
+    return {
+      namespaceId: namespace.id,
+      name: namespace.name.value,
+      activeVersion: activeVersion,
+      versions: namespace.versions.map(version => {
+        return {
+          packageId: version?.packageId,
+          version: version?.version?.value,
+          isActive: version?.packageId === activeVersion?.packageId
+        }
+      })
+    }
+  })
+};
+
 describe('packager tests', () => {
   it('npm packages search', async () => {
-    const searchPackages = async (query) => {
-      const deepPackageKeyword = 'deep-package';
-      const textParameter = encodeURIComponent(`${query} keywords:${deepPackageKeyword}`);
-      const url = `https://registry.npmjs.com/-/v1/search?text=${textParameter}`;
-      const response = await fetch(url);
-      const data = await response.json();
-      return data;
-    };
-
     const query1 = '123456789';
     const data1 = await searchPackages(query1) as any;
     console.log(JSON.stringify(data1, null, 2));
@@ -30,63 +83,34 @@ describe('packager tests', () => {
   });
 
   it('package versions', async () => {
-    const apollo = generateApolloClient(config.endpoint);
-    const deep = new DeepClient({ apolloClient: apollo });
+    const namespaces = await getPackagesVersions(["@deep-foundation/core"]);
+    console.log(JSON.stringify(namespaces, null, 2));
+    expect(namespaces.length).toBe(1);
+    const firstNamespace = namespaces[0];
+    expect(firstNamespace.versions[0].version).toBe("0.0.0");
+  });
 
-    const getPackageVersions = async (packageName) => {
-      const { data: data } = await deep.apolloClient.query({
-        query: gql`query GetPackageVersionsByName($packageVersionTypeId: bigint, $packageNamespaceTypeId: bigint, $packageActiveTypeId: bigint, $packageName: String) {
-          namespaces: links(where: {type_id: {_eq: $packageNamespaceTypeId}, string: { value: {_eq: $packageName }}}) {
-            id
-            name: value
-            versions: out(where: {type_id: {_eq: $packageVersionTypeId}, string: {value: {_is_null: false}}}) {
-              id
-              version: value
-              packageId: to_id
-            }
-            active: out(where: {type_id: {_eq: $packageVersionTypeId}, string: {value: {_is_null: false}}}) {
-              id
-              version: value
-              packageId: to_id
-            }
-          }
-        }`,
-        variables: {
-          "packageVersionTypeId": await deep.id('@deep-foundation/core', 'PackageVersion'),
-          "packageNamespaceTypeId": await deep.id('@deep-foundation/core', 'PackageNamespace'),
-          "packageActiveTypeId": await deep.id('@deep-foundation/core', 'PackageNamespace'),
-          "packageName": packageName
-        },
-      });
-
-      console.log(JSON.stringify(data, null, 2));
-      
-      return data.namespaces.map(namespace => {
-        const activeVersion = namespace.active.map(version => {
-          return {
-            packageId: version?.packageId,
-            version: version?.version?.value
-          }
-        })[0];
+  it('combined packages search', async () => {
+    const combinedSearch = async (query) => {
+      const remotePackages = await searchPackages(query);
+      const packagesNames = remotePackages.objects.map(rp => rp.package.name);
+      const localPackages = await await getPackagesVersions(packagesNames);
+      const localPackagesHash = {};
+      for (const localPackage of localPackages) {
+        localPackagesHash[localPackage.name] = localPackage;
+      }
+      return remotePackages.objects.map(rp => {
         return {
-          namespaceId: namespace.id,
-          name: namespace.name.value,
-          activeVersion: activeVersion,
-          versions: namespace.versions.map(version => {
-            return {
-              packageId: version?.packageId,
-              version: version?.version?.value,
-              isActive: version?.packageId === activeVersion?.packageId
-            }
-          })
+          remotePackage: rp.package,
+          localPackage: localPackagesHash[rp.package.name],
         }
-      })
+      });
     };
-  
-    const packages = await getPackageVersions("@deep-foundation/core");
-    console.log(JSON.stringify(packages, null, 2));
-    expect(packages.length).toBe(1);
-    const firstPackage = packages[0];
-    expect(firstPackage.versions[0].version).toBe("0.0.0");
+
+    const namespaces = await combinedSearch("@deep-foundation/pow");
+    console.log(JSON.stringify(namespaces, null, 2));
+    expect(namespaces.length).toBe(1);
+    const firstNamespace = namespaces[0].localPackage;
+    expect(firstNamespace.versions[0].version).toBe("0.0.7");
   });
 });
