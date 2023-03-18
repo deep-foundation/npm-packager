@@ -8,7 +8,7 @@ import { gql } from "@apollo/client";
 const apollo = generateApolloClient(config.endpoint);
 const deep = new DeepClient({ apolloClient: apollo });
 
-const searchPackages = async (query) => {
+const searchNpmPackages = async (query) => {
   const deepPackageKeyword = 'deep-package';
   const textParameter = encodeURIComponent(`${query} keywords:${deepPackageKeyword}`);
   const url = `https://registry.npmjs.com/-/v1/search?text=${textParameter}`;
@@ -17,7 +17,7 @@ const searchPackages = async (query) => {
   return data;
 };
 
-const getPackagesVersions = async (packagesNames) => {
+const getDeepPackagesVersions = async (packagesNames) => {
   const { data: data } = await deep.apolloClient.query({
     query: gql`query GetPackagesVersionsByName($packageVersionTypeId: bigint, $packageNamespaceTypeId: bigint, $packageActiveTypeId: bigint, $packagesNames: [String]) {
       namespaces: links(where: {type_id: {_eq: $packageNamespaceTypeId}, string: { value: {_in: $packagesNames }}}) {
@@ -68,9 +68,9 @@ const getPackagesVersions = async (packagesNames) => {
 };
 
 const combinedPackagesSearch = async (query) => {
-  const remotePackages = await searchPackages(query);
+  const remotePackages = await searchNpmPackages(query);
   const packagesNames = remotePackages.objects.map(rp => rp.package.name);
-  const localPackages = await await getPackagesVersions(packagesNames);
+  const localPackages = await await getDeepPackagesVersions(packagesNames);
   const localPackagesHash = {};
   for (const localPackage of localPackages) {
     localPackagesHash[localPackage.name] = localPackage;
@@ -97,20 +97,20 @@ const getPackageFromNpm = async (packageName) => {
 describe('packager tests', () => {
   it('npm packages search', async () => {
     const query1 = '123456789';
-    const data1 = await searchPackages(query1) as any;
+    const data1 = await searchNpmPackages(query1) as any;
     console.log(JSON.stringify(data1, null, 2));
     expect(data1.objects.length).toBe(0);
     expect(data1.total).toBe(0);
 
     const query2 = '@deep-foundation/pow';
-    const data2 = await searchPackages(query2) as any;
+    const data2 = await searchNpmPackages(query2) as any;
     console.log(JSON.stringify(data2, null, 2));
     expect(data2.objects.length).toBe(1);
     expect(data2.total).toBe(1);
   });
 
   it('package versions', async () => {
-    const namespaces = await getPackagesVersions(["@deep-foundation/core"]);
+    const namespaces = await getDeepPackagesVersions(["@deep-foundation/core"]);
     console.log(JSON.stringify(namespaces, null, 2));
     expect(namespaces.length).toBe(1);
     const firstNamespace = namespaces[0];
