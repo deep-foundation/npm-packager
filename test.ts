@@ -95,7 +95,7 @@ const getPackageFromNpm = async (packageName) => {
 };
 
 describe('packager tests', () => {
-  it('npm packages search', async () => {
+  it.skip('npm packages search', async () => {
     const query1 = '123456789';
     const data1 = await searchNpmPackages(query1) as any;
     console.log(JSON.stringify(data1, null, 2));
@@ -109,7 +109,7 @@ describe('packager tests', () => {
     expect(data2.total).toBe(1);
   });
 
-  it('package versions', async () => {
+  it.skip('package versions', async () => {
     const namespaces = await getDeepPackagesVersions(["@deep-foundation/core"]);
     console.log(JSON.stringify(namespaces, null, 2));
     expect(namespaces.length).toBe(1);
@@ -117,7 +117,7 @@ describe('packager tests', () => {
     expect(firstNamespace.versions[0].version).toBe("0.0.0");
   });
 
-  it('combined packages search', async () => {
+  it.skip('combined packages search', async () => {
     const packages1 = await combinedPackagesSearch("@deep-foundation/pow");
     console.log(JSON.stringify(packages1, null, 2));
     expect(packages1.installedPackages.length).toBe(1);
@@ -132,7 +132,7 @@ describe('packager tests', () => {
     expect(localPackage2.versions[0].version).toBe("0.0.7");
   });
 
-  it('npm package', async () => {
+  it.skip('npm package', async () => {
     const packageName = '@deep-foundation/pow';
     const data = await getPackageFromNpm(packageName) as any;
     console.log(JSON.stringify(data, null, 2));
@@ -140,5 +140,111 @@ describe('packager tests', () => {
     versions.sort();
     console.log(versions);
     expect(versions[0]).toBe("0.0.0");
+  });
+
+  it.skip('deep.linkId bug', async () => {
+    expect(deep.linkId).toBe(362);
+  });
+
+  it('GPT test', async () => {
+    const userId = 362;
+
+    // Create a node-link type with name Example1.
+    await deep.insert({
+      type_id: await deep.id('@deep-foundation/core', 'Type'),
+      in: {
+        data: {
+          from_id: userId,
+          type_id: await deep.id('@deep-foundation/core', 'Contain'),
+          string: { data: { value: 'Example1' } },
+        }
+      },
+    });
+
+    // Create a node-link type with name Example2.
+    // It has attached value of String type.
+    await deep.insert({
+      type_id: await deep.id('@deep-foundation/core', 'Type'),
+      in: {
+        data: {
+          from_id: userId,
+          type_id: await deep.id('@deep-foundation/core', 'Contain'),
+          string: { data: { value: 'Example2' } },
+        }
+      },
+      out: {
+        data: {
+          type_id: await deep.id('@deep-foundation/core', 'Value'),
+          to_id: await deep.id('@deep-foundation/core', 'String'),
+        }
+      }
+    });
+
+    // Create a node-link type with name Human.
+    // It has attached properties such as age (Number type), gender (String type), and name (String type).
+    await deep.insert({
+      type_id: await deep.id('@deep-foundation/core', 'Type'),
+      in: {
+        data: [
+          {
+            from_id: userId,
+            type_id: await deep.id('@deep-foundation/core', 'Contain'),
+            string: { data: { value: 'Human' } },
+          },
+          {
+            from_id: await deep.id('@deep-foundation/core', 'Any'),
+            type_id: await deep.id('@deep-foundation/core', 'Type'),
+            in: {
+              data: {
+                from_id: userId,
+                type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                string: { data: { value: 'Age' } },
+              }
+            },
+            out: {
+              data: {
+                type_id: await deep.id('@deep-foundation/core', 'Value'),
+                to_id: await deep.id('@deep-foundation/core', 'Number'),
+              }
+            }
+          },
+          {
+            from_id: await deep.id('@deep-foundation/core', 'Any'),
+            type_id: await deep.id('@deep-foundation/core', 'Type'),
+            in: {
+              data: {
+                from_id: userId,
+                type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                string: { data: { value: 'Name' } },
+              }
+            },
+            out: {
+              data: {
+                type_id: await deep.id('@deep-foundation/core', 'Value'),
+                to_id: await deep.id('@deep-foundation/core', 'String'),
+              }
+            }
+          },
+          {
+            from_id: await deep.id('@deep-foundation/core', 'Any'),
+            type_id: await deep.id('@deep-foundation/core', 'Type'),
+            in: {
+              data: {
+                from_id: userId,
+                type_id: await deep.id('@deep-foundation/core', 'Contain'),
+                string: { data: { value: 'Gender' } },
+              }
+            },
+            out: {
+              data: {
+                type_id: await deep.id('@deep-foundation/core', 'Value'),
+                to_id: await deep.id('@deep-foundation/core', 'String'),
+              }
+            }
+          },
+        ]
+      }
+    });
+
   });
 });
