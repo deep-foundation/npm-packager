@@ -35,36 +35,58 @@ describe('packager tests', () => {
 
     const getPackageVersions = async (packageName) => {
       const { data: data } = await deep.apolloClient.query({
-        query: gql`query GetPackageVersionsByName($packageTypeId: bigint, $packageVersionTypeId: bigint, $packageName: String) {
-          packages: links(where: {type_id: {_eq: $packageTypeId}, string: { value: {_eq: $packageName }}}) {
+        query: gql`query GetPackageVersionsByName($packageVersionTypeId: bigint, $packageNamespaceTypeId: bigint, $packageActiveTypeId: bigint, $packageName: String) {
+          namespaces: links(where: {type_id: {_eq: $packageNamespaceTypeId}, string: { value: {_eq: $packageName }}}) {
             id
             name: value
-            versions: in(where: {type_id: {_eq: $packageVersionTypeId}, string: {value: {_is_null: false}}}) {
+            versions: out(where: {type_id: {_eq: $packageVersionTypeId}, string: {value: {_is_null: false}}}) {
               id
               version: value
+              packageId: to_id
+            }
+            active: out(where: {type_id: {_eq: $packageVersionTypeId}, string: {value: {_is_null: false}}}) {
+              id
+              version: value
+              packageId: to_id
             }
           }
         }`,
         variables: {
-          "packageTypeId": await deep.id('@deep-foundation/core', 'Package'),
           "packageVersionTypeId": await deep.id('@deep-foundation/core', 'PackageVersion'),
+          "packageNamespaceTypeId": await deep.id('@deep-foundation/core', 'PackageNamespace'),
+          "packageActiveTypeId": await deep.id('@deep-foundation/core', 'PackageNamespace'),
           "packageName": packageName
         },
       });
+
+      console.log(JSON.stringify(data, null, 2));
       
-      return data.packages.map(pkg => {
+      return data.namespaces.map(namespace => {
+        const activeVersion = namespace.active.map(version => {
+          return {
+            packageId: version?.packageId,
+            version: version?.version?.value
+          }
+        })[0];
         return {
-          id: pkg?.id,
-          name: pkg?.name?.value,
-          version: pkg?.versions?.[0]?.version?.value
+          namespaceId: namespace.id,
+          name: namespace.name.value,
+          activeVersion: activeVersion,
+          versions: namespace.versions.map(version => {
+            return {
+              packageId: version?.packageId,
+              version: version?.version?.value,
+              isActive: version?.packageId === activeVersion?.packageId
+            }
+          })
         }
-      });
+      })
     };
   
     const packages = await getPackageVersions("@deep-foundation/core");
-    console.log(packages);
+    console.log(JSON.stringify(packages, null, 2));
     expect(packages.length).toBe(1);
     const firstPackage = packages[0];
-    expect(firstPackage.version).toBe("0.0.0");
-  }); 
+    expect(firstPackage.versions[0].version).toBe("0.0.0");
+  });
 });
