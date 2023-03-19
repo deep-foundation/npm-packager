@@ -7,10 +7,6 @@
   ],
   "scripts": {
     "build": "npx ts-node build.ts",
-    "import": "npm run build && npx ts-node import.ts",
-    "test-install": "npx ts-node test-install.ts",
-    "test-publish": "npx ts-node test-publish.ts",
-    "test-deep": "npx ts-node test-deep.ts",
     "publish-next-version": "npm run build; npm run test; export CURRENT_VERSION=$(npx ts-node set-next-version.ts); git add .; git commit -m $CURRENT_VERSION; git push",
     "test": "jest"
   },
