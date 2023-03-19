@@ -1,10 +1,5 @@
 # npm-packager
 
-NPM packager package for Deep. It handles installation and publication of `deep-package` packages.
+NPM packager package for Deep. It handles installation and publication of `deep-package` packages. This package is included in each Deep instance, there is no need to install it manually.
 
 [![Gitpod](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/deep-foundation/npm-packager)
-
-## Usage
-
-1. Update `config.json` with target Deep instance settings.
-2. Run: `npm run import`
