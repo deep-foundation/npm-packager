@@ -143,11 +143,11 @@ describe('packager tests', () => {
   });
 
   it.skip('deep.linkId bug', async () => {
-    expect(deep.linkId).toBe(362);
+    expect(deep.linkId).toBe(config.userId);
   });
 
   it.skip('GPT prompt', async () => {
-    const userId = 362;
+    const userId = config.userId;
 
     // Create a node-link type with name Example1.
     await deep.insert({
@@ -249,7 +249,7 @@ describe('packager tests', () => {
   });
 
   it.skip('GPT result 1', async () => {
-    const userId = 362;
+    const userId = config.userId;
 
     // Create Vehicle type.
     await deep.insert({
@@ -265,7 +265,7 @@ describe('packager tests', () => {
   });
 
   it.skip('GPT result 2', async () => {
-    const userId = 362;
+    const userId = config.userId;
 
     // Create a node-link type with name Vehicle.
     // It has attached properties such as NumberOfWheels (Number type).

@@ -7,7 +7,7 @@
   ],
   "scripts": {
     "build": "npx ts-node build.ts",
-    "publish-next-version": "npm run build; npm run test; export CURRENT_VERSION=$(npx ts-node set-next-version.ts); git add .; git commit -m $CURRENT_VERSION; git push",
+    "publish-next-version": "npm run build; npm run test; export CURRENT_VERSION=$(npx ts-node set-next-version.ts); npm i; git add .; git commit -m $CURRENT_VERSION; git push",
     "test": "jest"
   },
   "dependencies": {
