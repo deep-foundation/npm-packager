@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import pkg from './deep.json';
+import pkg from '../deep.json';
 
 const encoding = 'utf8';
 
