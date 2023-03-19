@@ -1,8 +1,8 @@
 # npm-packager
 
-[![Gitpod](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/deep-foundation/npm-packager)
+NPM packager package for Deep. It handles installation and publication of `deep-package` packages.
 
-NPM packager package on npm for Deep.
+[![Gitpod](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/deep-foundation/npm-packager)
 
 ## Usage
 
