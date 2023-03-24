@@ -179,7 +179,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   };
 
   const { data: [{ value: { value: packageQuery } }] } = await deep.select({ id: newLink.to_id });
-  const packageQueryParts ='@deep-foundation/pow@0.0.9'.split('@');
+  const packageQueryParts = packageQuery.split('@');
   if (packageQueryParts.length === 3) {
     const packageVersion = packageQueryParts.pop();
   }
