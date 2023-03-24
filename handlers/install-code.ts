@@ -178,7 +178,10 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     return existingPackages;
   };
 
-  const { data: [{ value: { value: packageName } }] } = await deep.select({ id: newLink.to_id });
+  const { data: [{ value: { value: packageQuery } }] } = await deep.select({ id: newLink.to_id });
+  const packageQueryParts ='@deep-foundation/pow@0.0.9'.split('@');
+  const packageVersion = packageQueryParts.pop();
+  const packageName = packageQueryParts.join('@');
   if (!packageName) {
     throw "Package query value is empty.";
   }
@@ -193,7 +196,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
       npmLogin(npmToken, tempDirectory);
     }
     const nodeModulesPath = [tempDirectory, 'node_modules'].join('/');
-    npmInstall(packageName, tempDirectory);
+    npmInstall(packageQuery, tempDirectory);
     const packagePath = makePackagePath(tempDirectory, packageName);
     const deepJsonPath = makeDeepJsonPath(packagePath);
     const packageJsonPath = makePackageJsonPath(packagePath);
