@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/npm-packager",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "license": "Unlicense",
   "keywords": [
     "deep-package"
