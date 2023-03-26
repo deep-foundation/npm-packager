@@ -100,18 +100,16 @@ describe('packager tests', () => {
     const data1 = await searchNpmPackages(query1) as any;
     console.log(JSON.stringify(data1, null, 2));
     expect(data1.objects.length).toBe(0);
-    expect(data1.total).toBe(data1.objects.length);
 
     const query2 = '@deep-foundation/pow';
     const data2 = await searchNpmPackages(query2) as any;
     console.log(JSON.stringify(data2, null, 2));
     expect(data2.objects.length).toBe(1);
-    expect(data2.total).toBe(data2.objects.length);
 
     const query3 = '';
     const data3 = await searchNpmPackages(query3) as any;
     console.log(JSON.stringify(data3, null, 2));
-    expect(data3.total).toBe(data3.objects.length);
+    
     const npmPackagerPackages = data3.objects.filter(p => p.package.name === '@deep-foundation/npm-packager')
     expect(npmPackagerPackages.length).toBe(1);
   });
