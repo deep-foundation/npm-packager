@@ -80,7 +80,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     });
     return npmToken;
   };
-  const updateVersion = async (packageJsonPath, packageId) => {
+  const updateVersion = async (packageJsonPath, packageId, localVersion) => {
     const semver = require('semver');
 
     const packageJson = fs.readFileSync(packageJsonPath, { encoding });
@@ -88,8 +88,11 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
       throw 'package.json is not found in installed package';
     }
     const npmPackage = JSON.parse(packageJson);
-    const nextVersion = npmPackage.version = semver.inc(npmPackage?.version || '0.0.0', 'patch');
-    
+    const npmVersion = npmPackage?.version || '0.0.0';
+
+    const nextVersion = semver.gt(npmVersion, localVersion) ? semver.inc(npmVersion, 'patch') : localVersion;
+    npmPackage.version = nextVersion;
+
     // TODO: Not sure about this.
     // TODO: Should we update the version inside deep?
     // TODO: May be we would allow to user to set specific version 
@@ -119,7 +122,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   };
   const installDependencies = (packagePath, dependencies) => {
     for (const dependency of dependencies) {
-      const packageName = `${dependency.name}@^${dependency.version}`;
+      const packageName = `${dependency.name}@~${dependency.version}`;
       const installationResult = npmInstall(packageName, packagePath);
       if (installationResult?.rejected) {
         throw installationResult.rejected;
@@ -134,7 +137,10 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   if (!packageName) {
     throw new Error('Package query value is empty.');
   }
-  const packageId = newLink.from_id;  
+  const packageVersionTypeId = await deep.id('@deep-foundation/core', 'PackageVersion');
+  const { data: [{versions: [{ version: { value: localVersion }}]}]} = await deep.select({ id: 742 }, { returning: `id versions: in(where: { type_id: { _eq: ${packageVersionTypeId} } }) { id type_id version: value }` })
+  
+  const packageId = newLink.from_id;
   const { data: [{ value: actualPackageName }]} = await deep.select(
     { link_id: { _eq: packageId } },
     {
@@ -171,7 +177,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     console.log('deepPackagePath', deepPackagePath);
     console.log('packageJsonPath', packageJsonPath);
     addKeyword(packageJsonPath, deepPackageKeyWord);
-    await updateVersion(packageJsonPath, packageId);
+    await updateVersion(packageJsonPath, packageId, localVersion);
     const pkg = await deepExport(packageId);
     console.log(pkg);
     installDependencies(deepPackagePath, pkg.dependencies);
