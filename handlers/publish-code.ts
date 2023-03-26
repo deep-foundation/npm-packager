@@ -90,7 +90,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     const npmPackage = JSON.parse(packageJson);
     const npmVersion = npmPackage?.version || '0.0.0';
 
-    const nextVersion = semver.gt(npmVersion, localVersion) ? semver.inc(npmVersion, 'patch') : localVersion;
+    const nextVersion = semver.gt(localVersion, npmVersion) ? localVersion : semver.inc(npmVersion, 'patch');
     npmPackage.version = nextVersion;
 
     // TODO: Not sure about this.
