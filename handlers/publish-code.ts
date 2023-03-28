@@ -138,8 +138,11 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     throw new Error('Package query value is empty.');
   }
   const packageVersionTypeId = await deep.id('@deep-foundation/core', 'PackageVersion');
-  const { data: [{versions: [{ version: { value: localVersion }}]}]} = await deep.select({ id: 742 }, { returning: `id versions: in(where: { type_id: { _eq: ${packageVersionTypeId} } }) { id type_id version: value }` })
-  
+  const { data: [{ versions: [{ version: { value: localVersion = undefined } = {}} = {}] = []} = {}] = []} = await deep.select({ id: newLink.from_id }, { returning: `id versions: in(where: { type_id: { _eq: ${packageVersionTypeId} } }) { id type_id version: value }` });
+  if (!localVersion) {
+    throw new Error('Package must have a version.');
+  }
+
   const packageId = newLink.from_id;
   const { data: [{ value: actualPackageName }]} = await deep.select(
     { link_id: { _eq: packageId } },
