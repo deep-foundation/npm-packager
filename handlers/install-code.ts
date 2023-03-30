@@ -57,8 +57,8 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     }
     if (deepJson.package.version !== packageJson.version) {
       throw new Error(`Package version is not synchronized between deep.json and package.json files.
-  deep.json package version: ${deepJson.package.name}.
-  package.json package version: ${packageJson.name}.`);
+  deep.json package version: ${deepJson.package.version}.
+  package.json package version: ${packageJson.version}.`);
     }
     const packager = new (require('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
     const imported = await packager.import(deepJson);
