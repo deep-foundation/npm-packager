@@ -7,6 +7,7 @@
   ],
   "scripts": {
     "build": "npx ts-node automation/build.ts",
+    "npm-pull": "(git diff --quiet || (echo 'You have unstaged changes. Stash them (git stash) or commit them (git commit)'; exit 1)) && npm install ${npm_package_name}@latest --no-save && mv --force node_modules/${npm_package_name}/* ./",
     "publish-next-version": "npm run build; npm run test; export CURRENT_VERSION=$(npx ts-node automation/set-next-version.ts); npm i; git add .; git commit -m $CURRENT_VERSION; git push",
     "test": "jest"
   },
