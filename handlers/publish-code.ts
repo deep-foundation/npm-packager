@@ -65,7 +65,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     const packager = new (require('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
     const exported = await packager.export({ packageLinkId: packageId });
     console.log(exported);
-    if (exported?.errors?.length) throw exported.errors;
+    if (exported?.errors?.length) throw exported;
     return exported;
   };
   const loadNpmToken = async () => {
