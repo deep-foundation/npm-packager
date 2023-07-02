@@ -63,7 +63,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     const packager = new (require('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
     const imported = await packager.import(deepJson);
     console.log(imported);
-    if (imported?.errors?.length) throw imported.errors;
+    if (imported?.errors?.length) throw imported;
     return imported;
   };
   const getDeepPackagesList = (rootPath) => {
