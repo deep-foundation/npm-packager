@@ -1,9 +1,9 @@
-async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
-  const fs = require('fs');
+async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
+  const fs = await deep.import('fs');
 
-  const makeTempDirectory = () => {
-    const os = require('os');
-    const { v4: uuid } = require('uuid');
+  const makeTempDirectory = async () => {
+    const os = await deep.import('os');
+    const { v4: uuid } = await deep.import('uuid');
     
     const baseTempDirectory = os.tmpdir();
     const randomId = uuid();
@@ -12,8 +12,8 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     console.log(tempDirectory);
     return tempDirectory;
   };
-  const npmInstall = (packageName, tempDirectory) => {
-    const execSync = require('child_process').execSync;
+  const npmInstall = async (packageName, tempDirectory) => {
+    const execSync = await deep.import('child_process').execSync;
 
     const command = `npm --prefix "${tempDirectory}" i ${packageName}`;
     const output = execSync(command, { 
@@ -23,8 +23,8 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     console.log(`${command}\n`, output);
     return output;
   };
-  const npmLogin = (token, tempDirectory) => {
-    const execSync = require('child_process').execSync;
+  const npmLogin = async (token, tempDirectory) => {
+    const execSync = await deep.import('child_process').execSync;
   
     const command = `npm set "//registry.npmjs.org/:_authToken" ${token}`;
     const output = execSync(command, { 
@@ -60,14 +60,14 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   deep.json package version: ${deepJson.package.version}.
   package.json package version: ${packageJson.version}.`);
     }
-    const packager = new (require('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
+    const packager = new (await deep.import('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
     const imported = await packager.import(deepJson);
     console.log(imported);
     if (imported?.errors?.length) throw imported;
     return imported;
   };
-  const getDeepPackagesList = (rootPath) => {
-    const execSync = require('child_process').execSync;
+  const getDeepPackagesList = async (rootPath) => {
+    const execSync = await deep.import('child_process').execSync;
   
     const deepFileName = 'deep.json';
     const deepFileNameLength = deepFileName.length;
@@ -86,18 +86,18 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
       .map(line => line.split('/node_modules/'));
     return packages;
   };
-  const getDeepPackagesDependencies = (rootPath, packages) => {
+  const getDeepPackagesDependencies = async (rootPath, packages) => {
     const dictionary = {};
     for (const pkg of packages) {
       const packagePath = [rootPath, pkg.join('/node_modules/')].join('/');
       console.log('packagePath', packagePath);
       const packageJsonPath = makePackageJsonPath(packagePath);
       console.log('packageJsonPath', packageJsonPath);
-      const packageJson = require(packageJsonPath);
+      const packageJson = await deep.import(packageJsonPath);
       console.log('packageJson', packageJson);
       const deepJsonPath = makeDeepJsonPath(packagePath);
       console.log('deepJsonPath', deepJsonPath);
-      const deepJson = require(deepJsonPath);
+      const deepJson = await deep.import(deepJsonPath);
       console.log('deepJson', deepJson);
       const dependencies = packageJson.dependencies ?? {};
       console.log('dependencies', dependencies);
@@ -187,7 +187,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   if (!packageName) {
     throw "Package query value is empty.";
   }
-  const tempDirectory = makeTempDirectory();
+  const tempDirectory = await makeTempDirectory();
   let deepJson;
   let packageJson;
   const installationQueue = [];
@@ -195,20 +195,20 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   try {
     const npmToken = await loadNpmToken();
     if (npmToken) {
-      npmLogin(npmToken, tempDirectory);
+      await npmLogin(npmToken, tempDirectory);
     }
     const nodeModulesPath = [tempDirectory, 'node_modules'].join('/');
-    npmInstall(packageQuery, tempDirectory);
+    await npmInstall(packageQuery, tempDirectory);
     const packagePath = makePackagePath(tempDirectory, packageName);
     const deepJsonPath = makeDeepJsonPath(packagePath);
     const packageJsonPath = makePackageJsonPath(packagePath);
-    deepJson = require(deepJsonPath);
-    packageJson = require(packageJsonPath);
+    deepJson = await deep.import(deepJsonPath);
+    packageJson = await deep.import(packageJsonPath);
 
-    const packages = getDeepPackagesList(nodeModulesPath)
+    const packages = await getDeepPackagesList(nodeModulesPath)
     console.log('packages', packages);
     
-    const deepPackagesDependencies = getDeepPackagesDependencies(nodeModulesPath, packages);
+    const deepPackagesDependencies = await getDeepPackagesDependencies(nodeModulesPath, packages);
     delete deepPackagesDependencies[packageName];
     console.log('deepPackagesDependencies', deepPackagesDependencies);
     

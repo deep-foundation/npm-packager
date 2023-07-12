@@ -1,11 +1,11 @@
 async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
-  const fs = require('fs');
+  const fs = await deep.import('fs');
   const encoding = 'utf8';
   const deepPackageKeyWord = 'deep-package';
   
-  const makeTempDirectory = () => {
-    const os = require('os');
-    const { v4: uuid } = require('uuid');
+  const makeTempDirectory = async () => {
+    const os = await deep.import('os');
+    const { v4: uuid } = await deep.import('uuid');
     
     const baseTempDirectory = os.tmpdir();
     const randomId = uuid();
@@ -14,8 +14,8 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     console.log(tempDirectory);
     return tempDirectory;
   };
-  const npmInstall = (packageName, installationPath) => {
-    const execSync = require('child_process').execSync;
+  const npmInstall = async (packageName, installationPath) => {
+    const execSync = await deep.import('child_process').execSync;
   
     const command = `npm --prefix "${installationPath}" i ${packageName}`;
     try {
@@ -36,8 +36,8 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
       };
     }
   };
-  const npmLogin = (token, tempDirectory) => {
-    const execSync = require('child_process').execSync;
+  const npmLogin = async (token, tempDirectory) => {
+    const execSync = await deep.import('child_process').execSync;
   
     const command = `npm set "//registry.npmjs.org/:_authToken" ${token}`;
     const output = execSync(command, { 
@@ -47,8 +47,8 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     console.log(`${command}\n`, output);
     return output;
   };
-  const npmPublish = (tempDirectory) => {
-    const execSync = require('child_process').execSync;
+  const npmPublish = async (tempDirectory) => {
+    const execSync = await deep.import('child_process').execSync;
   
     const command = `npm publish --access public`;
     const output = execSync(command, { 
@@ -62,7 +62,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const makeDeepJsonPath = (packagePath) => [packagePath, 'deep.json'].join('/');
   const makePackageJsonPath = (packagePath) => [packagePath, 'package.json'].join('/');
   const deepExport = async (packageId) => {
-    const packager = new (require('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
+    const packager = new (await deep.import('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
     const exported = await packager.export({ packageLinkId: packageId });
     console.log(exported);
     if (exported?.errors?.length) throw exported;
@@ -81,7 +81,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     return npmToken;
   };
   const updateVersion = async (packageJsonPath, packageId, localVersion) => {
-    const semver = require('semver');
+    const semver = await deep.import('semver');
 
     const packageJson = fs.readFileSync(packageJsonPath, { encoding });
     if (!packageJson) {
@@ -120,10 +120,10 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     }
     fs.writeFileSync(packageJsonPath, JSON.stringify(npmPackage, null, 2), { encoding });
   };
-  const installDependencies = (packagePath, dependencies) => {
+  const installDependencies = async (packagePath, dependencies) => {
     for (const dependency of dependencies) {
       const packageName = `${dependency.name}@~${dependency.version}`;
-      const installationResult = npmInstall(packageName, packagePath);
+      const installationResult = await npmInstall(packageName, packagePath);
       if (installationResult?.rejected) {
         throw installationResult.rejected;
       } else if (!installationResult?.resolved) {
@@ -154,14 +154,14 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   if (packageName !== actualPackageName) {
     throw new Error('Package query value should be equal to actual package name.');
   }
-  const tempDirectory = makeTempDirectory();
+  const tempDirectory = await makeTempDirectory();
   try {
     const npmToken = await loadNpmToken();
     if (!npmToken) {
       throw new Error('NPM token is required to publish package. NPM token should be contained by user that does insert publish link.');
     }
-    npmLogin(npmToken, tempDirectory);
-    const installationResult = npmInstall(packageName, tempDirectory);
+    await npmLogin(npmToken, tempDirectory);
+    const installationResult = await npmInstall(packageName, tempDirectory);
     let deepPackagePath; 
     let packageJsonPath;
     if (installationResult?.resolved) {
@@ -183,10 +183,10 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     await updateVersion(packageJsonPath, packageId, localVersion);
     const pkg = await deepExport(packageId);
     console.log(pkg);
-    installDependencies(deepPackagePath, pkg.dependencies);
+    await installDependencies(deepPackagePath, pkg.dependencies);
     const deepJsonPath = makeDeepJsonPath(deepPackagePath);
     fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
-    npmPublish(deepPackagePath);
+    await npmPublish(deepPackagePath);
   } finally {
     fs.rmSync(tempDirectory, { recursive: true, force: true });
   }
