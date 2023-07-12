@@ -62,7 +62,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const makeDeepJsonPath = (packagePath) => [packagePath, 'deep.json'].join('/');
   const makePackageJsonPath = (packagePath) => [packagePath, 'package.json'].join('/');
   const deepExport = async (packageId) => {
-    const packager = new (await deep.import('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
+    const packager = new (await deep.import('@deep-foundation/deeplinks/imports/packager.js')).Packager(deep);
     const exported = await packager.export({ packageLinkId: packageId });
     console.log(exported);
     if (exported?.errors?.length) throw exported;

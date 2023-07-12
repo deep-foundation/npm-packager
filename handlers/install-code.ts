@@ -60,7 +60,7 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
   deep.json package version: ${deepJson.package.version}.
   package.json package version: ${packageJson.version}.`);
     }
-    const packager = new (await deep.import('@deep-foundation/deeplinks/imports/packager')).Packager(deep);
+    const packager = new (await deep.import('@deep-foundation/deeplinks/imports/packager.js')).Packager(deep);
     const imported = await packager.import(deepJson);
     console.log(imported);
     if (imported?.errors?.length) throw imported;
