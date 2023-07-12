@@ -15,7 +15,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     return tempDirectory;
   };
   const npmInstall = async (packageName, installationPath) => {
-    const execSync = await deep.import('child_process').execSync;
+    const execSync = (await deep.import('child_process')).execSync;
   
     const command = `npm --prefix "${installationPath}" i ${packageName}`;
     try {
@@ -37,7 +37,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     }
   };
   const npmLogin = async (token, tempDirectory) => {
-    const execSync = await deep.import('child_process').execSync;
+    const execSync = (await deep.import('child_process')).execSync;
   
     const command = `npm set "//registry.npmjs.org/:_authToken" ${token}`;
     const output = execSync(command, { 
@@ -48,7 +48,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     return output;
   };
   const npmPublish = async (tempDirectory) => {
-    const execSync = await deep.import('child_process').execSync;
+    const execSync = (await deep.import('child_process')).execSync;
   
     const command = `npm publish --access public`;
     const output = execSync(command, { 

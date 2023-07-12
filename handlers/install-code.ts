@@ -13,7 +13,7 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     return tempDirectory;
   };
   const npmInstall = async (packageName, tempDirectory) => {
-    const execSync = await deep.import('child_process').execSync;
+    const execSync = (await deep.import('child_process')).execSync;
 
     const command = `npm --prefix "${tempDirectory}" i ${packageName}`;
     const output = execSync(command, { 
@@ -24,7 +24,7 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     return output;
   };
   const npmLogin = async (token, tempDirectory) => {
-    const execSync = await deep.import('child_process').execSync;
+    const execSync = (await deep.import('child_process')).execSync;
   
     const command = `npm set "//registry.npmjs.org/:_authToken" ${token}`;
     const output = execSync(command, { 
@@ -67,7 +67,7 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     return imported;
   };
   const getDeepPackagesList = async (rootPath) => {
-    const execSync = await deep.import('child_process').execSync;
+    const execSync = (await deep.import('child_process')).execSync;
   
     const deepFileName = 'deep.json';
     const deepFileNameLength = deepFileName.length;
