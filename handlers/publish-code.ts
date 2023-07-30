@@ -85,7 +85,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
 
     const packageJson = fs.readFileSync(packageJsonPath, { encoding });
     if (!packageJson) {
-      throw 'package.json is not found in installed package';
+      throw new Error('package.json is not found in installed package');
     }
     const npmPackage = JSON.parse(packageJson);
     const npmVersion = npmPackage?.version || '0.0.0';
@@ -108,7 +108,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   const addKeyword = (packageJsonPath, keyword) => {
     const packageJson = fs.readFileSync(packageJsonPath, { encoding });
     if (!packageJson) {
-      throw 'package.json is not found in installed package';
+      throw new Error('package.json is not found in installed package');
     }
     const npmPackage = JSON.parse(packageJson);
     if (npmPackage?.keywords?.length > 0) {
@@ -130,6 +130,10 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
         throw new Error('Unsupported NPM dependency installation result.');
       }
     }
+  }
+
+  if (!triggeredByLinkId) {
+    throw new Error('Install link should be inserted using JWT token (role link), it cannot be inserted using hasura secret (role admin).');
   }
 
   const { data: [packageQuery] } = await deep.select({ id: newLink.to_id });

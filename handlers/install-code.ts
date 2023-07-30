@@ -178,6 +178,10 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     return existingPackages;
   };
 
+  if (!triggeredByLinkId) {
+    throw new Error('Install link should be inserted using JWT token (role link), it cannot be inserted using hasura secret (role admin).');
+  }
+
   const { data: [{ value: { value: packageQuery } }] } = await deep.select({ id: newLink.to_id });
   const packageQueryParts = packageQuery.split('@');
   if (packageQueryParts.length === 3) {
@@ -185,7 +189,7 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
   }
   const packageName = packageQueryParts.join('@');
   if (!packageName) {
-    throw "Package query value is empty.";
+    throw new Error('Package query value is empty.');
   }
   const tempDirectory = await makeTempDirectory();
   let deepJson;
