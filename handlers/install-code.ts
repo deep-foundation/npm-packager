@@ -67,10 +67,30 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     if (imported?.errors?.length) throw imported;
     return imported;
   };
+  const getDeepPackagesList = async (rootPath) => {
+    const execSync = (await deep.import('child_process')).execSync;
+
+    const deepFileName = 'deep.json';
+    const deepFileNameLength = deepFileName.length;
+
+    const command = `find . -name ${deepFileName}`;
+    const output = execSync(command, { 
+        encoding: 'utf-8',
+        cwd: rootPath
+    });
+    console.log('', `${command}\n`, output);
+
+    const packages = output
+      .split(/\r?\n/)
+      .filter(line => line.trim())
+      .map(line => line.slice(2).slice(0, -deepFileNameLength - 1))
+      .map(line => line.split('/node_modules/'));
+    return packages;
+  };
   const getDeepPackagesDependencies = async (rootPath, packages, packageName) => {
     const dictionary = {};
     for (const pkg of packages) {
-      const packagePath = [rootPath, pkg].join('/');
+      const packagePath = [rootPath, pkg.join('/node_modules/')].join('/');
       console.log('packagePath', packagePath);
       const packageJsonPath = makePackageJsonPath(packagePath);
       console.log('packageJsonPath', packageJsonPath);
@@ -88,7 +108,7 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
       console.log('deepJson', deepJson);
       const dependencies = packageJson.dependencies ?? {};
       console.log('dependencies', dependencies);
-      const dependencyPackageName = pkg;
+      const dependencyPackageName = pkg.at(-1);
       console.log('dependencyPackageName', dependencyPackageName);
       if (Array.isArray(dictionary[dependencyPackageName])) {
         throw new Error('Multiple versions of the same package are not supported yet.');
@@ -196,7 +216,7 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     deepJson = await deep.import(deepJsonPath);
     packageJson = await deep.import(packageJsonPath);
 
-    const packages = deepJson.dependencies.map(d => d.name);
+    const packages = await getDeepPackagesList(nodeModulesPath);
     console.log('packages', packages);
     
     const deepPackagesDependencies = await getDeepPackagesDependencies(nodeModulesPath, packages, packageName);
