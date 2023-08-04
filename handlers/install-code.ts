@@ -88,7 +88,7 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
       console.log('deepJson', deepJson);
       const dependencies = packageJson.dependencies ?? {};
       console.log('dependencies', dependencies);
-      const dependencyPackageName = pkg.at(-1);
+      const dependencyPackageName = pkg;
       console.log('dependencyPackageName', dependencyPackageName);
       if (Array.isArray(dictionary[dependencyPackageName])) {
         throw new Error('Multiple versions of the same package are not supported yet.');
