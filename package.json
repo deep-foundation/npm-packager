@@ -1,6 +1,6 @@
 {
   "name": "@deep-foundation/npm-packager",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "license": "Unlicense",
   "type": "module",
   "keywords": [
@@ -9,6 +9,7 @@
   "scripts": {
     "build": "tsc --project tsconfig.json; node automation/build.js",
     "npm-pull": "npm-pull",
+    "npm-release": "npm-release",
     "publish-next-version": "npm run build; npm run test; export CURRENT_VERSION=$(node automation/set-next-version.js); npm i; git add .; git commit -m $CURRENT_VERSION; git push",
     "test": "npm run build && cross-env NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.js *.js --testTimeout=50000"
   },
