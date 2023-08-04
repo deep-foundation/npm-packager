@@ -80,7 +80,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     });
     return npmToken;
   };
-  const updateVersion = async (packageJsonPath, packageId, localVersion) => {
+  const updateVersion = async (packageJsonPath, localVersion) => {
     const semver = await deep.import('semver');
 
     const packageJson = fs.readFileSync(packageJsonPath, { encoding });
@@ -88,22 +88,14 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
       throw new Error('package.json is not found in installed package');
     }
     const npmPackage = JSON.parse(packageJson);
-    const npmVersion = npmPackage?.version || '0.0.0';
+    const oldNpmVersion = npmPackage?.version || '0.0.0';
 
-    const nextVersion = semver.gt(localVersion, npmVersion) ? localVersion : semver.inc(npmVersion, 'patch');
+    const nextVersion = semver.gt(localVersion, oldNpmVersion) ? localVersion : semver.inc(oldNpmVersion, 'patch');
     npmPackage.version = nextVersion;
 
-    // TODO: Not sure about this.
-    // TODO: Should we update the version inside deep?
-    // TODO: May be we would allow to user to set specific version 
-    // TODO: if they like or only they can interpret changes in code?
-    await deep.update({
-      link: {
-        type_id: { _eq: await deep.id('@deep-foundation/core', 'PackageVersion') },
-        to_id: { _eq: packageId },
-      },
-    }, { value: nextVersion }, { table: 'strings' });
     fs.writeFileSync(packageJsonPath, JSON.stringify(npmPackage, null, 2), { encoding });
+
+    return nextVersion;
   };
   const addKeyword = (packageJsonPath, keyword) => {
     const packageJson = fs.readFileSync(packageJsonPath, { encoding });
@@ -122,12 +114,13 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   };
   const installDependencies = async (packagePath, dependencies) => {
     for (const dependency of dependencies) {
-      const packageName = `${dependency.name}@~${dependency.version}`;
-      const installationResult = await npmInstall(packageName, packagePath);
+      const dependencyPackageName = `${dependency.name}@~${dependency.version}`;
+      const installationResult = await npmInstall(dependencyPackageName, packagePath);
       if (installationResult?.rejected) {
+        console.log(`Unable to install ${dependencyPackageName} dependency.`)
         throw installationResult.rejected;
       } else if (!installationResult?.resolved) {
-        throw new Error('Unsupported NPM dependency installation result.');
+        throw new Error(`Unsupported NPM dependency installation result for ${dependencyPackageName} dependency package.`);
       }
     }
   }
@@ -179,18 +172,26 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
       };
       fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), encoding);
     } else {
-      throw new Error('Unsupported NPM installation result.');
+      throw new Error(`Unsupported NPM installation result for ${packageName} package.`);
     }
     console.log('deepPackagePath', deepPackagePath);
     console.log('packageJsonPath', packageJsonPath);
     addKeyword(packageJsonPath, deepPackageKeyWord);
-    await updateVersion(packageJsonPath, packageId, localVersion);
+    const nextVersion = await updateVersion(packageJsonPath, localVersion);
     const pkg = await deepExport(packageId);
     console.log(pkg);
     await installDependencies(deepPackagePath, pkg.dependencies);
     const deepJsonPath = makeDeepJsonPath(deepPackagePath);
     fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
     await npmPublish(deepPackagePath);
+    if (nextVersion !== localVersion) {
+      await deep.update({
+        link: {
+          type_id: { _eq: await deep.id('@deep-foundation/core', 'PackageVersion') },
+          to_id: { _eq: packageId },
+        },
+      }, { value: nextVersion }, { table: 'strings' });
+    }
   } finally {
     fs.rmSync(tempDirectory, { recursive: true, force: true });
   }

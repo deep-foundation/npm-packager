@@ -1,4 +1,5 @@
 async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
+  const deepFileName = 'deep.json';
   const fs = await deep.import('fs');
 
   const makeTempDirectory = async () => {
@@ -35,7 +36,7 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     return output;
   };
   const makePackagePath = (tempDirectory, packageName) => [tempDirectory, 'node_modules', packageName].join('/');
-  const makeDeepJsonPath = (packagePath) => [packagePath, 'deep.json'].join('/');
+  const makeDeepJsonPath = (packagePath) => [packagePath, deepFileName].join('/');
   const makePackageJsonPath = (packagePath) => [packagePath, 'package.json'].join('/');
   const loadNpmToken = async () => {
     const containTreeId = await deep.id('@deep-foundation/core', 'containTree');
@@ -51,13 +52,13 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
   };
   const deepImport = async (deepJson, packageJson) => {
     if (deepJson.package.name !== packageJson.name) {
-      throw new Error(`Package name is not synchronized between deep.json and package.json files.
-  deep.json package name: ${deepJson.package.name}.
+      throw new Error(`Package name is not synchronized between ${deepFileName} and package.json files.
+  ${deepFileName} package name: ${deepJson.package.name}.
   package.json package name: ${packageJson.name}.`);
     }
     if (deepJson.package.version !== packageJson.version) {
-      throw new Error(`Package version is not synchronized between deep.json and package.json files.
-  deep.json package version: ${deepJson.package.version}.
+      throw new Error(`Package version is not synchronized between ${deepFileName} and package.json files.
+  ${deepFileName} package version: ${deepJson.package.version}.
   package.json package version: ${packageJson.version}.`);
     }
     const packager = new (await deep.import('@deep-foundation/deeplinks/imports/packager.js')).Packager(deep);
@@ -66,47 +67,33 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     if (imported?.errors?.length) throw imported;
     return imported;
   };
-  const getDeepPackagesList = async (rootPath) => {
-    const execSync = (await deep.import('child_process')).execSync;
-  
-    const deepFileName = 'deep.json';
-    const deepFileNameLength = deepFileName.length;
-  
-    const command = `find . -name ${deepFileName}`;
-    const output = execSync(command, { 
-        encoding: 'utf-8',
-        cwd: rootPath
-    });
-    console.log('', `${command}\n`, output);
-  
-    const packages = output
-      .split(/\r?\n/)
-      .filter(line => line.trim())
-      .map(line => line.slice(2).slice(0, -deepFileNameLength - 1))
-      .map(line => line.split('/node_modules/'));
-    return packages;
-  };
-  const getDeepPackagesDependencies = async (rootPath, packages) => {
+  const getDeepPackagesDependencies = async (rootPath, packages, packageName) => {
     const dictionary = {};
     for (const pkg of packages) {
-      const packagePath = [rootPath, pkg.join('/node_modules/')].join('/');
+      const packagePath = [rootPath, pkg].join('/');
       console.log('packagePath', packagePath);
       const packageJsonPath = makePackageJsonPath(packagePath);
       console.log('packageJsonPath', packageJsonPath);
+      if (!fs.existsSync(packageJsonPath)) {
+        throw new Error(`package.json for dependency ${pkg} is not found at ${packageJsonPath}. Looks like ${packageName} does not contain ${pkg} dependency in package.json.`);
+      }
       const packageJson = await deep.import(packageJsonPath);
       console.log('packageJson', packageJson);
       const deepJsonPath = makeDeepJsonPath(packagePath);
       console.log('deepJsonPath', deepJsonPath);
+      if (!fs.existsSync(deepJsonPath)) {
+        throw new Error(`deep.json for dependency ${pkg} is not found at ${deepJsonPath}. Looks like ${pkg} installed, but it does not contain deep.json. Make sure ${pkg} is a deep package.`);
+      }
       const deepJson = await deep.import(deepJsonPath);
       console.log('deepJson', deepJson);
       const dependencies = packageJson.dependencies ?? {};
       console.log('dependencies', dependencies);
-      const packageName = pkg.at(-1);
-      console.log('packageName', packageName);
-      if (Array.isArray(dictionary[packageName])) {
+      const dependencyPackageName = pkg.at(-1);
+      console.log('dependencyPackageName', dependencyPackageName);
+      if (Array.isArray(dictionary[dependencyPackageName])) {
         throw new Error('Multiple versions of the same package are not supported yet.');
       }
-      dictionary[packageName] = { deepJson, packageJson, dependencies };
+      dictionary[dependencyPackageName] = { deepJson, packageJson, dependencies };
     }
     for (const pkg in dictionary) {
       const sourceDependencies = dictionary[pkg].dependencies;
@@ -209,10 +196,10 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     deepJson = await deep.import(deepJsonPath);
     packageJson = await deep.import(packageJsonPath);
 
-    const packages = await getDeepPackagesList(nodeModulesPath)
+    const packages = deepJson.dependencies.map(d => d.name);
     console.log('packages', packages);
     
-    const deepPackagesDependencies = await getDeepPackagesDependencies(nodeModulesPath, packages);
+    const deepPackagesDependencies = await getDeepPackagesDependencies(nodeModulesPath, packages, packageName);
     delete deepPackagesDependencies[packageName];
     console.log('deepPackagesDependencies', deepPackagesDependencies);
     
