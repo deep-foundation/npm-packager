@@ -234,9 +234,9 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
   const existingPackages = await getExistingPackages(installationQueue.map(e => e.name));
   console.log('existingPackages', existingPackages);
 
-  for (const package of installationQueue) {
-    const packageName = package.name;
-    const existingPackage = existingPackages[packageName];
+  for (const dependencyPackage of installationQueue) {
+    const dependencyPackageName = dependencyPackage.name;
+    const existingPackage = existingPackages[dependencyPackageName];
     if (existingPackage) {
       await deep.insert({
         type_id: await deep.id('@deep-foundation/npm-packager', 'Used'),
@@ -244,7 +244,11 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
         to_id: existingPackage.id,
       });
     } else {
-      const importedDependency = await deepImport(package.deepJson, package.packageJson);
+      const importedDependency = await deepImport(dependencyPackage.deepJson, dependencyPackage.packageJson);
+      if (importedDependency?.errors?.length > 0 || !importedDependency?.packageId) {
+        console.log(`Unable to install dependency ${dependencyPackageName}.`, importedDependency);
+        throw new Error(`Unable to install dependency ${dependencyPackageName}.`);
+      }
       await deep.insert({
         type_id: await deep.id('@deep-foundation/npm-packager', 'Installed'),
         from_id: newLink.id,
