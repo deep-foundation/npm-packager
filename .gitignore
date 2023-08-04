@@ -102,3 +102,11 @@ dist
 
 # TernJS port file
 .tern-port
+
+# npm-packager
+/*.js
+/*.js.map
+/*.d.ts
+/automation/**/*.js
+/automation/**/*.js.map
+/automation/**/*.d.ts

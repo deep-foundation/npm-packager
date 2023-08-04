@@ -3,7 +3,7 @@ import fetch from 'node-fetch';
 import { generateApolloClient } from '@deep-foundation/hasura/client';
 import { DeepClient } from '@deep-foundation/deeplinks/imports/client';
 import config from './config.json';
-import { gql } from "@apollo/client";
+import { gql } from "@apollo/client/index.js";
 
 const apollo = generateApolloClient(config.endpoint);
 const deep = new DeepClient({ apolloClient: apollo });

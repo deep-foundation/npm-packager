@@ -5,36 +5,24 @@
     "sourceMap": true,
     "noImplicitAny": false,
     "removeComments": true,
-    "jsx": "preserve",
-    "module": "CommonJS",
+    "jsx": "react",
+    "module": "ESNext",
     "moduleResolution": "node",
-    "target": "es2021",
+    "target": "es2015",
+    "skipLibCheck": true,
     "lib": [
       "dom",
       "es6",
-      "es7"
+      "es7",
+      "es2022.error"
     ],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "declaration": true,
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "incremental": true,
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx"
-  ],
   "exclude": [
     "node_modules",
-    "electron"
+    "handlers"
   ],
-  "typeRoots": [
-    "./node_modules/@types"
-  ]
 }
