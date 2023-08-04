@@ -1,7 +1,7 @@
 import * as fs from 'fs';
-import pkg from '../deep.json';
-import npmPackage from '../package.json'
-const semver = require('semver');
+import pkg from '../deep.json' assert { type: 'json' };
+import npmPackage from '../package.json' assert { type: 'json' };
+import semver from 'semver';
 
 const encoding = 'utf8';
 
