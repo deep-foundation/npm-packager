@@ -80,29 +80,45 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     });
     return npmToken;
   };
-  const updateVersion = async (packageJsonPath, localVersion) => {
+  const loadFromJson = (path) => {
+    if (!fs.existsSync(path)) {
+      throw new Error(`${path} is not found.`);
+    }
+    const json = fs.readFileSync(path, { encoding });
+    if (!json) {
+      throw new Error(`${path} is empty or was not read properly.`);
+    }
+    console.log(`Parsing ${path} ...`);
+    const data = JSON.parse(json);
+    console.log(`Parsing ${path} finished.`);
+    return data;
+  }
+  const saveAsJson = (path, data) => {
+    fs.writeFileSync(path, JSON.stringify(data, null, 2), { encoding });
+  }
+  const updateVersion = async (deepJsonPath, packageJsonPath, localVersion) => {
     const semver = await deep.import('semver');
 
-    const packageJson = fs.readFileSync(packageJsonPath, { encoding });
-    if (!packageJson) {
-      throw new Error('package.json is not found in installed package');
-    }
-    const npmPackage = JSON.parse(packageJson);
+    const deepPackage = loadFromJson(deepJsonPath);
+    const npmPackage = loadFromJson(packageJsonPath);
+
     const oldNpmVersion = npmPackage?.version || '0.0.0';
 
     const nextVersion = semver.gt(localVersion, oldNpmVersion) ? localVersion : semver.inc(oldNpmVersion, 'patch');
-    npmPackage.version = nextVersion;
 
-    fs.writeFileSync(packageJsonPath, JSON.stringify(npmPackage, null, 2), { encoding });
+    npmPackage.version = nextVersion;
+    if (!deepPackage.package) {
+      deepPackage.package = {};
+    }
+    deepPackage.package.version = nextVersion;  
+
+    saveAsJson(deepJsonPath, deepPackage);
+    saveAsJson(packageJsonPath, npmPackage);
 
     return nextVersion;
   };
   const addKeyword = (packageJsonPath, keyword) => {
-    const packageJson = fs.readFileSync(packageJsonPath, { encoding });
-    if (!packageJson) {
-      throw new Error('package.json is not found in installed package');
-    }
-    const npmPackage = JSON.parse(packageJson);
+    const npmPackage = loadFromJson(packageJsonPath);
     if (npmPackage?.keywords?.length > 0) {
       if (!npmPackage.keywords.includes(keyword)) {
         npmPackage.keywords.push(keyword); 
@@ -110,7 +126,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     } else {
       npmPackage.keywords = [ keyword ];
     }
-    fs.writeFileSync(packageJsonPath, JSON.stringify(npmPackage, null, 2), { encoding });
+    saveAsJson(packageJsonPath, npmPackage);
   };
   const installDependencies = async (packagePath, dependencies) => {
     for (const dependency of dependencies) {
@@ -126,7 +142,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   }
 
   if (!triggeredByLinkId) {
-    throw new Error('Install link should be inserted using JWT token (role link), it cannot be inserted using hasura secret (role admin).');
+    throw new Error('Publish link should be inserted using JWT token (role link), it cannot be inserted using hasura secret (role admin).');
   }
 
   const { data: [packageQuery] } = await deep.select({ id: newLink.to_id });
@@ -170,19 +186,20 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
       const packageJson = {
         name: packageName
       };
-      fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), encoding);
+      saveAsJson(packageJsonPath, packageJson);
     } else {
       throw new Error(`Unsupported NPM installation result for ${packageName} package.`);
     }
     console.log('deepPackagePath', deepPackagePath);
     console.log('packageJsonPath', packageJsonPath);
-    addKeyword(packageJsonPath, deepPackageKeyWord);
-    const nextVersion = await updateVersion(packageJsonPath, localVersion);
+    
     const pkg = await deepExport(packageId);
     console.log(pkg);
     await installDependencies(deepPackagePath, pkg.dependencies);
     const deepJsonPath = makeDeepJsonPath(deepPackagePath);
-    fs.writeFileSync(deepJsonPath, JSON.stringify(pkg, null, 2), encoding);
+    saveAsJson(deepJsonPath, pkg);
+    const nextVersion = await updateVersion(deepJsonPath, packageJsonPath, localVersion);
+    addKeyword(packageJsonPath, deepPackageKeyWord);
     await npmPublish(deepPackagePath);
     if (nextVersion !== localVersion) {
       await deep.update({
