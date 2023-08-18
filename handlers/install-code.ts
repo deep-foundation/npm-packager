@@ -269,5 +269,10 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
     from_id: newLink.from_id,
     to_id: imported.packageId,
   });
+  await deep.insert({
+    type_id: await deep.id('@deep-foundation/npm-packager', 'Installed'),
+    from_id: newLink.id,
+    to_id: imported.packageId,
+  });
   return imported;
 }
