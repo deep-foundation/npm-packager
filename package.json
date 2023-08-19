@@ -14,7 +14,8 @@
     "test": "npm run build && cross-env NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.js *.js --testTimeout=50000"
   },
   "dependencies": {
-    "@deep-foundation/core": "~0.0.1"
+    "@deep-foundation/core": "~0.0.1",
+    "@deep-foundation/deeplinks": "^0.0.279"
   },
   "devDependencies": {
     "@deep-foundation/npm-automation": "^18.1.3",
