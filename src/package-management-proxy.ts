@@ -104,7 +104,7 @@ export class PackageManagementProxy {
     ])
   }
 
-  private ensureRequiredPackagesAreInMinilinks() {
+  public ensureRequiredPackagesAreInMinilinks() {
     for (const requiredPackageName of Object.values(this.REQUIRED_PACKAGES)) {
       try {
         this.deep.idLocal(requiredPackageName);
