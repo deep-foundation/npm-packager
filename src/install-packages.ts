@@ -5,6 +5,18 @@ import {
 import { createSerialOperation } from '@deep-foundation/deeplinks/imports/gql/index.js';
 import { BoolExpLink } from "@deep-foundation/deeplinks/imports/client_types.js";
 
+/**
+ * Installs a package
+ * 
+ * @remarks
+ * {@link REQUIRED_PACKAGES} must be in minilinks. It is recommended to use {@link applyMinilinks} for this
+ * 
+ * @example
+```ts
+await applyMinilinks({deep})
+await installPackage({deep, packageName: '@deep-foundation/logger'})
+```
+ */
 export async function installPackage(options: InstallPackageOptions) {
   const { deep, packageName } = options;
   return await installPackages({ deep, packageNames: [packageName] })
