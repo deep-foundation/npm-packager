@@ -15,7 +15,7 @@ await npmPackagerProxy.applyMinilinks();
 await npmPackagerProxy.install('@deep-foundation/logger');
 ```
  */
-export class NpmPackageProxy {
+export class NpmPackagerProxy {
   private deep: DeepClient;
 
   constructor(deep: DeepClient) {
