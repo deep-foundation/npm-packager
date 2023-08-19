@@ -5,6 +5,15 @@ import {
 import { createSerialOperation } from '@deep-foundation/deeplinks/imports/gql/index.js';
 import { BoolExpLink } from "@deep-foundation/deeplinks/imports/client_types.js";
 
+export async function installPackage(options: InstallPackageOptions) {
+  const { deep, packageName } = options;
+  return await installPackages({ deep, packageNames: [packageName] })
+}
+
+export type InstallPackageOptions = Omit<InstallPackagesOptions, 'packages'> & {
+  packageName: string;
+};
+
 /**
  * Installs packages
  * 
