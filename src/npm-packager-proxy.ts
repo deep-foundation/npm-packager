@@ -47,7 +47,7 @@ export class NpmPackageProxy {
       this.REQUIRED_PACKAGES['@deep-foundation/core'],
       'Contain'
     );
-    const reservedLinkIds = await this.deep.reserve(2)
+    const reservedLinkIds = await this.deep.reserve(packageNames.length * 2)
     const packageQueryLinkId = reservedLinkIds.pop()!;
     const installLinkId = reservedLinkIds.pop()!;
     return packageNames.flatMap((packageName) => [
