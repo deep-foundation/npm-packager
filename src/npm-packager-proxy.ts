@@ -2,8 +2,8 @@ import {
   DeepClient,
   SerialOperation,
 } from '@deep-foundation/deeplinks/imports/client.js';
-import { BoolExpLink } from '@deep-foundation/deeplinks/imports/client_types';
-import { createSerialOperation } from '@deep-foundation/deeplinks/imports/gql';
+import { BoolExpLink } from '@deep-foundation/deeplinks/imports/client_types.js';
+import { createSerialOperation } from '@deep-foundation/deeplinks/imports/gql/index.js';
 
 /**
  * Proxy for package management
