@@ -30,9 +30,11 @@ export class NpmPackageProxy {
    */
   public async install(...packageNames: Array<string>): Promise<any> {
     const operations = await this.makeInstallPackagesOperations(...packageNames);
-    return await this.deep.serial({
-      operations,
+    await this.deep.serial({
+      operations: operations.flatMap(operation => operation.operations),
     });
+    const promisesToAwaitInstallation = operations.map(async (operation) => await this.deep.await(operation.installLinkId));
+    await Promise.all(promisesToAwaitInstallation);
   }
 
   /**
@@ -41,67 +43,76 @@ export class NpmPackageProxy {
  * @remarks
  * {@link REQUIRED_PACKAGES} must be in minilinks. It is recommended to use {@link applyMinilinks} for this
 */
-  public async makeInstallPackagesOperations(...packageNames: Array<string>): Promise<Array<SerialOperation>> {
+  public async makeInstallPackagesOperations(...packageNames: Array<string>): Promise<MakeInstallPackagesOperationsReturnType> {
     this.ensureRequiredPackagesAreInMinilinks()
     const containTypeLinkId = this.deep.idLocal(
       this.REQUIRED_PACKAGES['@deep-foundation/core'],
       'Contain'
     );
     const reservedLinkIds = await this.deep.reserve(packageNames.length * 2)
-    const packageQueryLinkId = reservedLinkIds.pop()!;
-    const installLinkId = reservedLinkIds.pop()!;
-    return packageNames.flatMap((packageName) => [
-      createSerialOperation({
-        type: 'insert',
-        table: 'links',
-        objects: {
-          id: packageQueryLinkId,
-          type_id: this.deep.idLocal(
-            this.REQUIRED_PACKAGES['@deep-foundation/core'],
-            'PackageQuery'
-          ),
-        }
-      }),
-      createSerialOperation({
-        type: 'insert',
-        table: 'strings',
-        objects: {
-          link_id: packageQueryLinkId,
-          value: packageName
-        }
-      }),
-      createSerialOperation({
-        type: 'insert',
-        table: 'links',
-        objects: {
-          type_id: containTypeLinkId,
-          from_id: this.deep.linkId,
-          to_id: packageQueryLinkId
-        }
-      }),
-      createSerialOperation({
-        type: 'insert',
-        table: 'links',
-        objects: {
-          id: installLinkId,
-          type_id: this.deep.idLocal(
-            this.REQUIRED_PACKAGES['@deep-foundation/npm-packager'],
-            'Install'
-          ),
-          from_id: this.deep.linkId,
-          to_id: packageQueryLinkId
-        }
-      }),
-      createSerialOperation({
-        type: 'insert',
-        table: 'links',
-        objects: {
-          type_id: containTypeLinkId,
-          from_id: this.deep.linkId,
-          to_id: installLinkId
-        }
-      }),
-    ])
+    
+    const serialOperations = packageNames.map((packageName) => {
+      const packageQueryLinkId = reservedLinkIds.pop()!;
+      const installLinkId = reservedLinkIds.pop()!;
+      return {
+        packageQueryLinkId,
+        installLinkId,
+        operations: [
+          createSerialOperation({
+            type: 'insert',
+            table: 'links',
+            objects: {
+              id: packageQueryLinkId,
+              type_id: this.deep.idLocal(
+                this.REQUIRED_PACKAGES['@deep-foundation/core'],
+                'PackageQuery'
+              ),
+            }
+          }),
+          createSerialOperation({
+            type: 'insert',
+            table: 'strings',
+            objects: {
+              link_id: packageQueryLinkId,
+              value: packageName
+            }
+          }),
+          createSerialOperation({
+            type: 'insert',
+            table: 'links',
+            objects: {
+              type_id: containTypeLinkId,
+              from_id: this.deep.linkId,
+              to_id: packageQueryLinkId
+            }
+          }),
+          createSerialOperation({
+            type: 'insert',
+            table: 'links',
+            objects: {
+              id: installLinkId,
+              type_id: this.deep.idLocal(
+                this.REQUIRED_PACKAGES['@deep-foundation/npm-packager'],
+                'Install'
+              ),
+              from_id: this.deep.linkId,
+              to_id: packageQueryLinkId
+            }
+          }),
+          createSerialOperation({
+            type: 'insert',
+            table: 'links',
+            objects: {
+              type_id: containTypeLinkId,
+              from_id: this.deep.linkId,
+              to_id: installLinkId
+            }
+          }),
+        ]
+      }
+    })
+
+    return serialOperations
   }
 
   public ensureRequiredPackagesAreInMinilinks() {
@@ -151,4 +162,4 @@ export class NpmPackageProxy {
 
 }
 
-
+export type MakeInstallPackagesOperationsReturnType = Array<{packageQueryLinkId: number; installLinkId: number; operations: Array<SerialOperation>}>
