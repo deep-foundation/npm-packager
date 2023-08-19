@@ -10,12 +10,12 @@ import { createSerialOperation } from '@deep-foundation/deeplinks/imports/gql';
  * 
  * @example
 ```ts
-const packageManagementProxy = new PackageManagementProxy(deep);
-await packageManagementProxy.applyMinilinks();
-await packageManagementProxy.install('@deep-foundation/logger');
+const npmPackagerProxy = new NpmPackagerProxy(deep);
+await npmPackagerProxy.applyMinilinks();
+await npmPackagerProxy.install('@deep-foundation/logger');
 ```
  */
-export class PackageManagementProxy {
+export class NpmPackageProxy {
   private deep: DeepClient;
 
   constructor(deep: DeepClient) {
