@@ -18,9 +18,8 @@ await installPackages({deep, packageNames: ['@deep-foundation/logger']})
 ```
  */
 export async function installPackages(options: InstallPackagesOptions) {
-  const { deep, packageNames } = options;
-  const operations = await makeInstallPackagesOperations({ deep, packageNames });
-  return await deep.serial({
+  const operations = await makeInstallPackagesOperations(options);
+  return await options.deep.serial({
     operations
   })
 }
