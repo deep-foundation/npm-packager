@@ -27,6 +27,10 @@ export class NpmPackageProxy {
    * 
    * @remarks
    * {@link REQUIRED_PACKAGES} must be in minilinks. It is recommended to use {@link applyMinilinks} for this
+   * 
+   * @throws
+   * If {@link REQUIRED_PACKAGES} is not in minilinks
+   * If installation failed
    */
   public async install(...packageNames: Array<string>): Promise<any> {
     const operations = await this.makeInstallPackagesOperations(...packageNames);
@@ -42,6 +46,9 @@ export class NpmPackageProxy {
  * 
  * @remarks
  * {@link REQUIRED_PACKAGES} must be in minilinks. It is recommended to use {@link applyMinilinks} for this
+ * 
+ * @throws
+ * If {@link REQUIRED_PACKAGES} is not in minilinks
 */
   public async makeInstallPackagesOperations(...packageNames: Array<string>): Promise<MakeInstallPackagesOperationsReturnType> {
     this.ensureRequiredPackagesAreInMinilinks()
