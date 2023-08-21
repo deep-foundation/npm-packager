@@ -4,6 +4,7 @@ import {
 } from '@deep-foundation/deeplinks/imports/client.js';
 import { BoolExpLink } from '@deep-foundation/deeplinks/imports/client_types.js';
 import { createSerialOperation } from '@deep-foundation/deeplinks/imports/gql/index.js';
+import { MinilinkCollection, Minilinks } from '@deep-foundation/deeplinks/imports/minilinks';
 
 /**
  * Proxy for package management
@@ -34,11 +35,31 @@ export class NpmPackagerProxy {
    */
   public async install(...packageNames: Array<string>): Promise<any> {
     const operations = await this.makeInstallPackagesOperations(...packageNames);
-    await this.deep.serial({
-      operations: operations.flatMap(operation => operation.operations),
-    });
     const promisesToAwaitInstallation = operations.map(async (operation) => await this.deep.await(operation.installLinkId));
     await Promise.all(promisesToAwaitInstallation);
+    const intalledTypeLinkId = this.deep.idLocal(RequiredPackages.NpmPackager, "Installed");
+   
+    const {data: failedInstallLinkIds} = await this.deep.select({
+      _or: operations.map(operation => (
+        {
+          id: operation.installLinkId,
+          out: {
+            _not: {
+              type_id: intalledTypeLinkId,
+              to: {
+                id: {
+                  _id: [operation.packageName]
+                }
+              }
+            }
+          }
+        }
+      ))
+    })
+
+    if(failedInstallLinkIds.length > 0) {
+      throw new Error(`Failed to install ${failedInstallLinkIds.join(', ')}`)
+    }
   }
 
   /**
@@ -58,10 +79,11 @@ export class NpmPackagerProxy {
     );
     const reservedLinkIds = await this.deep.reserve(packageNames.length * 2)
     
-    const serialOperations = packageNames.map((packageName) => {
+    const result = packageNames.map((packageName) => {
       const packageQueryLinkId = reservedLinkIds.pop()!;
       const installLinkId = reservedLinkIds.pop()!;
       return {
+        packageName,
         packageQueryLinkId,
         installLinkId,
         operations: [
@@ -119,7 +141,7 @@ export class NpmPackagerProxy {
       }
     })
 
-    return serialOperations
+    return result
   }
 
   public ensureRequiredPackagesAreInMinilinks() {
@@ -169,4 +191,4 @@ export enum RequiredPackages {
   NpmPackager = '@deep-foundation/npm-packager',
 } 
 
-export type MakeInstallPackagesOperationsReturnType = Array<{packageQueryLinkId: number; installLinkId: number; operations: Array<SerialOperation>}>
+export type MakeInstallPackagesOperationsReturnType = Array<{packageName: string; packageQueryLinkId: number; installLinkId: number; operations: Array<SerialOperation>}>
