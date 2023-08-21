@@ -1,10 +1,10 @@
 import {
   DeepClient,
   SerialOperation,
-} from '@@deep-foundation/deeplinks/imports/client.js';
-import { BoolExpLink } from '@@deep-foundation/deeplinks/imports/client_types.js';
-import { createSerialOperation } from '@@deep-foundation/deeplinks/imports/gql/index.js';
-import { MinilinkCollection, Minilinks } from '@@deep-foundation/deeplinks/imports/minilinks';
+} from '@deep-foundation/deeplinks/imports/client.js';
+import { BoolExpLink } from '@deep-foundation/deeplinks/imports/client_types.js';
+import { createSerialOperation } from '@deep-foundation/deeplinks/imports/gql/index.js';
+import { MinilinkCollection, Minilinks } from '@deep-foundation/deeplinks/imports/minilinks';
 import debug from 'debug';
 
 /**
@@ -14,7 +14,7 @@ import debug from 'debug';
 ```ts
 const npmPackagerProxy = new NpmPackagerProxy(deep);
 await npmPackagerProxy.applyMinilinks();
-await npmPackagerProxy.install('@@deep-foundation/logger');
+await npmPackagerProxy.install('@deep-foundation/logger');
 ```
  */
 export class NpmPackagerProxy {
@@ -186,7 +186,7 @@ export class NpmPackagerProxy {
     const selectData: BoolExpLink = {
       up: {
         tree_id: {
-          _id: ["@@deep-foundation/core", "containTree"]
+          _id: ["@deep-foundation/core", "containTree"]
         },
         parent: {
           _or: packageNamesToApply.map(packageName => ({
@@ -206,8 +206,8 @@ export class NpmPackagerProxy {
 }
 
 export enum RequiredPackages {
-  Core = '@@deep-foundation/core',
-  NpmPackager = '@@deep-foundation/npm-packager',
+  Core = '@deep-foundation/core',
+  NpmPackager = '@deep-foundation/npm-packager',
 } 
 
 export type MakeInstallPackagesOperationsReturnType = Array<{packageName: string; packageQueryLinkId: number; installLinkId: number; operations: Array<SerialOperation>}>
