@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@deep-foundation/core": "~0.0.1",
-    "@deep-foundation/deeplinks": "^0.0.295",
+    "@deep-foundation/deeplinks": "^0.0.298",
     "debug": "^4.3.4"
   },
   "devDependencies": {
