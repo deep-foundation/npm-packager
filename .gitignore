@@ -110,3 +110,6 @@ dist
 /automation/**/*.js
 /automation/**/*.js.map
 /automation/**/*.d.ts
+/src/**/*.js
+/src/**/*.js.map
+/src/**/*.d.ts

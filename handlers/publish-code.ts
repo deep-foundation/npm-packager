@@ -14,9 +14,25 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
     console.log(tempDirectory);
     return tempDirectory;
   };
-  const npmInstall = async (packageName, installationPath) => {
+  const npmInstall = async (packageName, installationPath, setTildaPrefix) => {
     const execSync = (await deep.import('child_process')).execSync;
+
+    if (setTildaPrefix === true) {
+      const savePrefixCommand = `npm --prefix "${installationPath}" config set save-prefix="~"`;
+      try {
+        const output = execSync(savePrefixCommand, { 
+          encoding: 'utf-8',
+          cwd: installationPath
+        }).toString();
+        console.log(`${savePrefixCommand}\n`, output);
+      } catch(error) {
+        return {
+          rejected: error
+        };
+      }
+    }
   
+    let result;
     const command = `npm --prefix "${installationPath}" i ${packageName}`;
     try {
       const output = execSync(command, { 
@@ -24,7 +40,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
         cwd: installationPath
       }).toString();
       console.log(`${command}\n`, output);
-      return {
+      result = {
         resolved: {
           status: 0,
           stdout: output
@@ -35,6 +51,23 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
         rejected: error
       };
     }
+
+    if (setTildaPrefix === true) {
+      const deletePrefixCommand = `npm --prefix "${installationPath}" config delete save-prefix`;
+      try {
+        const output = execSync(deletePrefixCommand, { 
+          encoding: 'utf-8',
+          cwd: installationPath
+        }).toString();
+        console.log(`${deletePrefixCommand}\n`, output);
+      } catch(error) {
+        return {
+          rejected: error
+        };
+      }
+    }
+
+    return result;
   };
   const npmLogin = async (token, tempDirectory) => {
     const execSync = (await deep.import('child_process')).execSync;
@@ -130,8 +163,8 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
   };
   const installDependencies = async (packagePath, dependencies) => {
     for (const dependency of dependencies) {
-      const dependencyPackageName = `${dependency.name}@~${dependency.version}`;
-      const installationResult = await npmInstall(dependencyPackageName, packagePath);
+      const dependencyPackageName = `${dependency.name}@${dependency.version}`;
+      const installationResult = await npmInstall(dependencyPackageName, packagePath, true);
       if (installationResult?.rejected) {
         console.log(`Unable to install ${dependencyPackageName} dependency.`)
         throw installationResult.rejected;
@@ -174,7 +207,7 @@ async ({ deep, require, gql, data: { triggeredByLinkId, newLink } }) => {
       throw new Error('NPM token is required to publish package. NPM token should be contained by user that does insert publish link.');
     }
     await npmLogin(npmToken, tempDirectory);
-    const installationResult = await npmInstall(packageName, tempDirectory);
+    const installationResult = await npmInstall(packageName, tempDirectory, false);
     let deepPackagePath; 
     let packageJsonPath;
     if (installationResult?.resolved) {
