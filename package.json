@@ -11,7 +11,7 @@
     "npm-pull": "npm-pull",
     "npm-release": "npm run build; npm run test; npm-release",
     "publish-next-version": "npm run build; npm run test; export CURRENT_VERSION=$(node automation/set-next-version.js); npm i; git add .; git commit -m $CURRENT_VERSION; git push",
-    "test": "npm run build && cross-env NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.js *.js --testTimeout=50000"
+    "test": "npm run build && cross-env NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.js test.js --testTimeout=50000 --detectOpenHandles"
   },
   "dependencies": {
     "@deep-foundation/core": "~0.0.1",

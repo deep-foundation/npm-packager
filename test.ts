@@ -5,8 +5,8 @@ import { DeepClient } from '@deep-foundation/deeplinks/imports/client';
 import config from './config.json';
 import { gql } from "@apollo/client/index.js";
 
-const apollo = generateApolloClient(config.endpoint);
-const deep = new DeepClient({ apolloClient: apollo });
+let apollo = null; 
+let deep = null;
 
 const searchNpmPackages = async (query) => {
   const deepPackageKeyword = 'deep-package';
@@ -94,6 +94,13 @@ const getPackageFromNpm = async (packageName) => {
   return data;
 };
 
+const ensureDeepClientCreated = async () => {
+  if (!deep) {
+    apollo = generateApolloClient(config.endpoint);
+    deep = new DeepClient({ apolloClient: apollo });
+  }
+}
+
 describe('packager tests', () => {
   it('npm packages search', async () => {
     const query1 = '123456789';
@@ -115,6 +122,8 @@ describe('packager tests', () => {
   });
 
   it.skip('package versions', async () => {
+    await ensureDeepClientCreated();
+    
     const namespaces = await getDeepPackagesVersions(["@deep-foundation/core"]);
     console.log(JSON.stringify(namespaces, null, 2));
     expect(namespaces.length).toBe(1);
@@ -123,6 +132,8 @@ describe('packager tests', () => {
   });
 
   it.skip('combined packages search', async () => {
+    await ensureDeepClientCreated();
+
     const packages1 = await combinedPackagesSearch("@deep-foundation/pow");
     console.log(JSON.stringify(packages1, null, 2));
     expect(packages1.installedPackages.length).toBe(1);
@@ -138,6 +149,8 @@ describe('packager tests', () => {
   });
 
   it.skip('npm package', async () => {
+    await ensureDeepClientCreated();
+
     const packageName = '@deep-foundation/pow';
     const data = await getPackageFromNpm(packageName) as any;
     console.log(JSON.stringify(data, null, 2));
@@ -148,10 +161,14 @@ describe('packager tests', () => {
   });
 
   it.skip('deep.linkId bug', async () => {
+    await ensureDeepClientCreated();
+
     expect(deep.linkId).toBe(config.userId);
   });
 
   it.skip('GPT prompt', async () => {
+    await ensureDeepClientCreated();
+
     const userId = config.userId;
 
     // Create a node-link type with name Example1.
@@ -254,6 +271,8 @@ describe('packager tests', () => {
   });
 
   it.skip('GPT result 1', async () => {
+    await ensureDeepClientCreated();
+
     const userId = config.userId;
 
     // Create Vehicle type.
@@ -270,6 +289,8 @@ describe('packager tests', () => {
   });
 
   it.skip('GPT result 2', async () => {
+    await ensureDeepClientCreated();
+
     const userId = config.userId;
 
     // Create a node-link type with name Vehicle.
