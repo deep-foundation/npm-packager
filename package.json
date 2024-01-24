@@ -15,8 +15,10 @@
   },
   "dependencies": {
     "@deep-foundation/core": "~0.0.1",
-    "@deep-foundation/deeplinks": "^0.0.325",
     "debug": "^4.3.4"
+  },
+  "peerDependencies": {
+    "@deep-foundation/deeplinks": "0.0.x"
   },
   "devDependencies": {
     "@deep-foundation/npm-automation": "^18.1.13",
