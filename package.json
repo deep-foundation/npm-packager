@@ -16,11 +16,9 @@
     "@deep-foundation/core": "~0.0.1",
     "debug": "^4.3.4"
   },
-  "peerDependencies": {
-    "@deep-foundation/deeplinks": "0.0.x"
-  },
   "devDependencies": {
-    "@deep-foundation/npm-automation": "^18.1.14",
+    "@deep-foundation/deeplinks": "0.0.*",
+    "@deep-foundation/npm-automation": "18.*.*",
     "@types/debug": "^4.1.8",
     "@types/jest": "^29.4.0",
     "jest": "^29.5.0",
