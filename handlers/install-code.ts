@@ -110,10 +110,17 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
       console.log('dependencies', dependencies);
       const dependencyPackageName = pkg.at(-1);
       console.log('dependencyPackageName', dependencyPackageName);
-      if (Array.isArray(dictionary[dependencyPackageName])) {
-        throw new Error('Multiple versions of the same package are not supported yet.');
+      if (dictionary[dependencyPackageName]) {
+        if (packageJson.version === dictionary[dependencyPackageName].packageJson.version) {
+          console.log(`${dependencyPackageName}@${packageJson.version} was already added to a list of dependencies, no need to add it again.`)
+          continue;
+        } else {
+          throw new Error(`Multiple versions of the same package are not supported yet.
+${dependencyPackageName}@${dictionary[dependencyPackageName].packageJson.version} was already added to a list of dependencies from ${dictionary[dependencyPackageName].packagePath}.
+But ${packageName} also contains ${dependencyPackageName}@${packageJson.version} dependency at ${packagePath}.`);
+        }
       }
-      dictionary[dependencyPackageName] = { deepJson, packageJson, dependencies };
+      dictionary[dependencyPackageName] = { deepJson, packageJson, dependencies, packagePath };
     }
     for (const pkg in dictionary) {
       const sourceDependencies = dictionary[pkg].dependencies;
