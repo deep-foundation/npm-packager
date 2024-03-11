@@ -6,7 +6,7 @@ NPM packager package for [Deep](https://deep.foundation/). It handles installati
 
 ## For maintainers
 
-Please publish this package using only this command:
+Please publish new version of this package using only this command:
 
 ```bash
 npm run npm-release
