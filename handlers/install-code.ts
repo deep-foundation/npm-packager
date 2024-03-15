@@ -41,14 +41,14 @@ async ({ deep, gql, data: { triggeredByLinkId, newLink } }) => {
   const loadNpmToken = async () => {
     const containTreeId = await deep.id('@deep-foundation/core', 'containTree');
     const tokenTypeId = await deep.id('@deep-foundation/npm-packager', 'Token');
-    const { data: [{ value: { value: npmToken = undefined } = {}} = {}] = []} = await deep.select({
+    const { data: [{ value: npmTokenValue } = {}] = []} = await deep.select({
       up: {
         tree_id: { _eq: containTreeId },
         parent: { id: { _eq: triggeredByLinkId } },
         link: { type_id: { _eq: tokenTypeId } }
       }
     });
-    return npmToken;
+    return npmTokenValue?.value;
   };
   const deepImport = async (deepJson, packageJson) => {
     if (deepJson.package.name !== packageJson.name) {
