@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "build": "tsc --project tsconfig.json; node automation/build.js",
-    "npm-pull": "npm-pull",
+    "unbuild": "tsc --project tsconfig.json; node automation/unbuild.js",
+    "npm-pull": "npm-pull; npm run build",
     "npm-release": "npm run build; npm run test; npm-release",
     "test": "npm run build && cross-env NODE_OPTIONS=--experimental-vm-modules jest --config jest.config.js test.js --testTimeout=50000 --detectOpenHandles"
   },
