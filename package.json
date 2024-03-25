@@ -1,5 +1,5 @@
 { 
-  "name": "@deep-foundation/npm-packager",
+  "name": "@deep-foundation/npm-packager", 
   "version": "0.0.45",
   "license": "Unlicense",
   "type": "module",
